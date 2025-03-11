@@ -15,7 +15,13 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // For demo purposes, no password check is done for students
       res.json({
         message: "Login successful",
-        dashboard: `/dashboard/${user._id}`
+        user: {
+          id: user._id,
+          role: user.role,
+          name: user.childName, 
+          school: user.school,
+          uniqueIdentifier: user.uniqueIdentifier,
+        },
       });
       return;
     } else {
@@ -27,11 +33,18 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       }
       res.json({
         message: "Login successful",
-        dashboard: `/dashboard/${user._id}`
+        user: {
+          id: user._id,
+          role: user.role,
+          name: user.parentName || user.teacherName, 
+          school: user.school,
+          uniqueIdentifier: user.uniqueIdentifier,
+        },
       });
       return;
     }
   } catch (err) {
+    console.error("🚀 ~ loginUser ~ error:", err); // Log any errors
     next(err);
   }
 };
@@ -55,7 +68,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         parentName,
         childName,
         school,
-        grades,
         uniqueIdentifier
       });
       await parentUser.save();
@@ -68,14 +80,12 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         parentName,
         childName,
         school,
-        grades,
         uniqueIdentifier
       });
       await childUser.save();
 
       res.status(201).json({
-        message: "Parent and child accounts registered successfully",
-        dashboard: `/dashboard/${parentUser._id}`
+        message: "Parent and child accounts registered successfully"
       });
     } else {
       const newUser = new User({
@@ -86,13 +96,11 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         childName: role === "parent" ? childName : undefined,
         teacherName: role === "teacher" ? teacherName : undefined,
         school,
-        grades,
         uniqueIdentifier
       });
       await newUser.save();
       res.status(201).json({
-        message: "User registered successfully",
-        dashboard: `/dashboard/${newUser._id}`
+        message: "User registered successfully"
       });
     }
   } catch (error) {

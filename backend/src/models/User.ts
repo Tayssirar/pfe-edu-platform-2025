@@ -9,7 +9,8 @@ interface IUser extends Document {
   teacherName?: string;
   school: string;
   grades: string[];
-  uniqueIdentifier: string; // Add this line
+  uniqueIdentifier: string;
+  profilePhoto?: string; // Add this field
 }
 
 const UserSchema: Schema = new Schema({
@@ -20,8 +21,9 @@ const UserSchema: Schema = new Schema({
   childName: { type: String },
   teacherName: { type: String },
   school: { type: String, required: true },
-  grades: { type: [String], required: true },
-  uniqueIdentifier: { type: String, required: true }, // Ensure no unique constraint
+  grades: { type: [String], required: false },
+  uniqueIdentifier: { type: String, required: true },
+  profilePhoto: { type: String }, // Store image as a base64 string or URL
 });
 
 export default mongoose.model<IUser>('User', UserSchema);

@@ -1,17 +1,29 @@
-
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/auth';
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; 
 
-export const register = async (payload: any) => {
+
+// Login function (with real API call)
+export const login = async (data: any) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, payload);
+    // Using the real API
+    const response = await axios.post(`${API_URL}/auth/login`, data);
     return response;
   } catch (error) {
+    console.log("login error:", error);
     throw error;
   }
-  
-};
-export const login = async (data: any) => {
-  return axios.post(`${API_URL}/login`, data);
-};
+}
+
+
+export const register = async (data: any) => {
+  try {
+    return await axios.post(`${API_URL}/auth/register`, data)
+  } catch (error) {
+    console.log("register error:", error)
+    // Mock implementation could be added here
+    throw error
+  }
+}
+
+
