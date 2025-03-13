@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ArabicDate from "../components/ArabicDate";
+import StudentsList from "../pages/teacher/StudentsList";
 
 const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLogout, setShowLogout] = useState(false);
@@ -10,23 +11,18 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Retrieve user info from localStorage (replace with state management if needed)
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  console.log("🚀 ~ user:", user)
+  console.log("🚀 ~ user:", user);
 
-
-    const userName = user?.name || "";
+  const userName = user?.name || "";
   const userRole = user?.role || "";
   const Role = user?.role === "teacher" ? "المعلم" : user?.role === "parent" ? "ولي أمر" : user?.role === "student" ? "طالب" : "";
 
-
-
-
-
   // Define navigation items based on user role
-  const navOptions: Record<string, { label: string; path: string }[]> = {
+  const navOptions: Record<string, { label: string; path: string; state?: any }[]> = {
     teacher: [
-      { label: "الملف الشخصي", path: `/teacher/${user.id}/profile` },
+      { label: "الملف الشخصي", path: `/teacher/${user.id}/profile`, state: { user }  },
       { label: "الدروس", path: `/teacher/${user.id}/lessons` },
-      { label: "الطلاب", path: `/teacher/${user.id}/students` },
+      { label: "الطلاب", path: `/teacher/${user.id}/students`, state: { user }  }, 
     ],
     parent: [
       { label: "الملف الشخصي", path: `/parent/${user.id}/profile` },

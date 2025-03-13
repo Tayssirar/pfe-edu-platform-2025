@@ -1,15 +1,14 @@
-import type React from "react"
-import { useNavigate, useLocation, Link } from "react-router-dom"
-import { register } from "../../api/auth"
-import { useState } from "react"
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { register } from "../../api/auth";
 
 const RegisterPage: React.FC = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Get role from URL query parameters
-  const queryParams = new URLSearchParams(location.search)
-  const roleFromQuery = queryParams.get("role")
+  const queryParams = new URLSearchParams(location.search);
+  const roleFromQuery = queryParams.get("role");
 
   // State to handle form data
   const [formData, setFormData] = useState({
@@ -21,34 +20,34 @@ const RegisterPage: React.FC = () => {
     password: "",
     confirmPassword: "",
     teacherName: "",
-  })
+  });
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
+    const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [id]: value,
-    }))
-  }
+    }));
+  };
 
   // Function to handle role change and update URL
   const handleRegister = async () => {
-    const { role, parentName, childName, uniqueIdentifier, school, password, confirmPassword, teacherName } = formData
+    const { role, parentName, childName, uniqueIdentifier, school, password, confirmPassword, teacherName } = formData;
 
     if (password !== confirmPassword) {
-      alert("كلمات السر غير متطابقة")
-      return
+      alert("كلمات السر غير متطابقة");
+      return;
     }
 
     const requiredFields =
       role === "parent"
         ? [parentName, childName, uniqueIdentifier, school, password]
-        : [teacherName, uniqueIdentifier, school, password]
+        : [teacherName, uniqueIdentifier, school, password];
 
     if (requiredFields.some((field) => !field)) {
-      alert("يرجى ملء جميع الحقول")
-      return
+      alert("يرجى ملء جميع الحقول");
+      return;
     }
 
     try {
@@ -61,16 +60,16 @@ const RegisterPage: React.FC = () => {
         teacherName: role === "teacher" ? teacherName : undefined,
         school,
         uniqueIdentifier,
-      }
+      };
 
-      const response = await register(payload)
+      const response = await register(payload);
       if (response.status === 201) {
-        navigate(`/login?role=${role}`)
+        navigate(`/login?role=${role}`);
       }
     } catch (error: any) {
-      alert(error.response ? error.response.data.message : "An error occurred")
+      alert(error.response ? error.response.data.message : "An error occurred");
     }
-  }
+  };
 
   return (
     <div className="auth-container register-position">
@@ -208,7 +207,7 @@ const RegisterPage: React.FC = () => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RegisterPage
+export default RegisterPage;

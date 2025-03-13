@@ -1,25 +1,23 @@
-import type React from "react"
-import { useState } from "react"
-import { useNavigate, useLocation, Link } from "react-router-dom"
-import { login } from "../../api/auth"
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { login } from "../../api/auth";
 
 const LoginPage: React.FC = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Get role from URL query parameters
-  const queryParams = new URLSearchParams(location.search)
-  const roleFromQuery = queryParams.get("role")
+  const queryParams = new URLSearchParams(location.search);
+  const roleFromQuery = queryParams.get("role");
 
-  const [role, setRole] = useState<string>(roleFromQuery || "student")
-  const [uniqueIdentifier, setUniqueIdentifier] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [childId, setChildId] = useState<string>("")
-
+  const [role, setRole] = useState<string>(roleFromQuery || "student");
+  const [uniqueIdentifier, setUniqueIdentifier] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [childId, setChildId] = useState<string>("");
 
   const handleLogin = async () => {
     try {
-      let payload: any = { role };
+      let payload: any = { role }; // Ensure role is always passed
   
       if (role === "student" && uniqueIdentifier) {
         payload = { ...payload, uniqueIdentifier };
@@ -32,42 +30,36 @@ const LoginPage: React.FC = () => {
         return;
       }
   
+      console.log("🚀 ~ Sending login payload:", payload); // Debugging log
+  
       const response = await login(payload);
   
-      // Store role and user name in localStorage
+      // Store role and user data in localStorage
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("userRole", role);
-      localStorage.setItem("userName", response.data.user.name); // Assuming API returns `name` in `user` object
+      localStorage.setItem("userName", response.data.user.name);
   
-      // Navigate to the appropriate dashboard based on the role
-      if (role === "teacher") {
-        navigate(`/dashboard/${response.data.user.id}/teacher`);
-      } else if (role === "student") {
-        console.log("Navigating to:", `/dashboard/${response.data.user.id}/student`);
-        navigate(`/dashboard/${response.data.user.id}/student`);
-      } else if (role === "parent") {
-        navigate(`/dashboard/${response.data.user.id}/parent`);
-      }
+      // Navigate to the correct dashboard
+      navigate(`/dashboard/${response.data.user.id}/${role}`);
     } catch (error: any) {
       console.error("🚀 ~ handleLogin ~ error:", error);
       alert(error.response ? error.response.data.message : "An error occurred");
     }
   };
 
-
   // Map role to Arabic for display
   const getRoleInArabic = (roleValue: string): string => {
     switch (roleValue) {
       case "student":
-        return "تلميذ"
+        return "تلميذ";
       case "teacher":
-        return "معلم"
+        return "معلم";
       case "parent":
-        return "ولي أمر"
+        return "ولي أمر";
       default:
-        return roleValue
+        return roleValue;
     }
-  }
+  };
 
   return (
     <div className="auth-container login-position">
@@ -168,8 +160,7 @@ const LoginPage: React.FC = () => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
-
+export default LoginPage;

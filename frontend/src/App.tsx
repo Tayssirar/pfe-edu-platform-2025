@@ -9,6 +9,7 @@ import StudentDashboard from "./pages/student/StudentDashboard"
 import ParentDashboard from "./pages/parent/ParentDashboard" 
 import PageLayout from "./layout/PageLayout"
 import ProfilePage from "./pages/ProfilePage"
+import StudentsList from "./pages/teacher/StudentsList"
 
 const App = () => {
 
@@ -25,6 +26,14 @@ const App = () => {
           element={
             <PageLayout>
               <TeacherDashboard />
+            </PageLayout>
+          }
+        />
+                <Route
+          path="/teacher/:userId/students"
+          element={
+            <PageLayout>
+              <StudentsList />
             </PageLayout>
           }
         />
