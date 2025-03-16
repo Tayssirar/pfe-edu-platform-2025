@@ -41,7 +41,7 @@ const LandingPage: React.FC = () => {
       </div>
 
       <div className="video-section">
-        <VideoPlayer src="https://youtu.be/IYLTc3tGdzc?si=HyyqnqUKshzh9QXr" />
+        <VideoPlayer src="https://youtu.be/IYLTc3tGdzc?si=HyyqnqUKshzh9QXr" width={300} height={200} />
       </div>
 
       <div className="children-illustration">

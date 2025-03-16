@@ -21,16 +21,16 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navOptions: Record<string, { label: string; path: string; state?: any }[]> = {
     teacher: [
       { label: "الملف الشخصي", path: `/teacher/${user.id}/profile`, state: { user }  },
-      { label: "الدروس", path: `/teacher/${user.id}/lessons` },
+      { label: "الدروس", path: `/teacher/${user.id}/lessons`, state: { user } },
       { label: "الطلاب", path: `/teacher/${user.id}/students`, state: { user }  }, 
     ],
     parent: [
-      { label: "الملف الشخصي", path: `/parent/${user.id}/profile` },
-      { label: "أداء الطفل", path: `/parent/${user.id}/kid-performance` },
+      { label: "الملف الشخصي", path: `/parent/${user.id}/profile`, state: { user } },
+      { label: "أداء الطفل", path: `/parent/${user.id}/kid-performance`, state: { user } },
     ],
     student: [
-      { label: "الملف الشخصي", path: `/student/${user.id}/profile` },
-      { label: "الدروس", path: `/student/${user.id}/lessons` },
+      { label: "الملف الشخصي", path: `/student/${user.id}/profile`, state: { user } },
+      { label: "الدروس", path: `/student/${user.id}/lessons`, state: { user } },
     ],
   };
 
