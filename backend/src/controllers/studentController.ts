@@ -83,3 +83,21 @@ export const searchStudentByUniqueIdentifier = async (req: Request, res: Respons
       return res.status(500).json({ message: "Server error" });
     }
   };
+
+// Fetch child by parent ID
+export const getChildByParent = async (req: Request, res: Response) => {
+  try {
+    const { parentId } = req.params;
+
+    const students = await Student.find({ parentId });
+
+    if (!students || students.length === 0) {
+      return res.status(404).json({ message: "No child found for this parent" });
+    }
+
+    return res.json(students);
+  } catch (error) {
+    console.error("Error fetching children:", error);
+    return res.status(500).json({ message: "Error fetching children", error });
+  }
+};

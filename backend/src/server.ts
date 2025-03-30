@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
 import studentRoutes from "./routes/studentRoutes";
+import activityRoutes from "./routes/activityRoutes";
+import feedbackRoutes from "./routes/feedbackRoutes";
+
 dotenv.config();
 
 const app = express();
@@ -18,7 +20,8 @@ mongoose
 
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
-
+app.use("/api/activity", activityRoutes);
+app.use ('/api/feedback', feedbackRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

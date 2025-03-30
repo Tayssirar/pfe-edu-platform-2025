@@ -1,5 +1,7 @@
 import express from "express";
-import { getStudentsByTeacher, linkStudentToTeacher, deleteStudent, searchStudentByUniqueIdentifier } from "../controllers/studentController";
+import { getStudentsByTeacher, linkStudentToTeacher,
+     deleteStudent, searchStudentByUniqueIdentifier,
+     getChildByParent } from "../controllers/studentController";
 
 const router = express.Router();
 
@@ -15,5 +17,8 @@ router.delete("/:teacherId/:uniqueIdentifier", deleteStudent);
 
 // Route to search a student by unique identifier
 router.get("/search/:uniqueIdentifier", searchStudentByUniqueIdentifier);
+
+// Fetch children by parent ID
+router.get("/parent/:parentId/children", getChildByParent);
 
 export default router;

@@ -23,6 +23,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           name: user.childName,
           school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
+          profilePhoto: user.profilePhoto,
         },
       });
     } else if (role === "teacher") {
@@ -39,6 +40,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           name: user.teacherName,
           school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
+          profilePhoto: user.profilePhoto,
         },
       });
     } else if (role === "parent") {
@@ -53,7 +55,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           id: user._id,
           role: "parent",
           name: user.parentName,
+          school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
+          profilePhoto: user.profilePhoto,
         },
       });
     } else {
@@ -112,5 +116,42 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Error registering user', error });
+  }
+};
+
+// Function to update profile photo
+export const updateProfilePhoto = async (req: Request, res: Response) => {
+  const { userId, role } = req.params;
+  const { profilePhoto } = req.body;
+  console.log("🚀 ~ updateProfilePhoto ~ req.body:", req.body)
+
+  if (!profilePhoto) {
+    return res.status(400).json({ message: "الصورة الرمزية مطلوبة" });
+  }
+
+  try {
+    let user;
+    switch (role) {
+      case "student":
+        user = await Student.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        break;
+      case "teacher":
+        user = await Teacher.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        break;
+      case "parent":
+        user = await Parent.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        break;
+      default:
+        return res.status(400).json({ message: "الدور غير صالح" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "المستخدم غير موجود" });
+    }
+
+    res.json({ message: "تم تحديث الصورة بنجاح", profilePhoto: user.profilePhoto });
+  } catch (error) {
+    console.error("Error updating profile photo:", error);
+    res.status(500).json({ message: "خطأ في الخادم" });
   }
 };
