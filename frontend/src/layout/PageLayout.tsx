@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ArabicDate from "../components/ArabicDate";
-import StudentsList from "../pages/teacher/StudentsList";
 
 const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLogout, setShowLogout] = useState(false);
@@ -15,7 +14,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const userName = user?.name || "";
   const userRole = user?.role || "";
-  const Role = user?.role === "teacher" ? "المعلم" : user?.role === "parent" ? "ولي أمر" : user?.role === "student" ? "طالب" : "";
+  const Role = user?.role === "teacher" ? "المعلم" : user?.role === "parent" ? "ولي الأمر" : user?.role === "student" ? "التلميذ" : "";
 
   // Define navigation items based on user role
   const navOptions: Record<string, { label: string; path: string; state?: any }[]> = {
@@ -26,7 +25,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     ],
     parent: [
       { label: "الملف الشخصي", path: `/parent/${user.id}/profile`, state: { user } },
-      { label: "أداء الطفل", path: `/parent/${user.id}/kid-performance`, state: { user } },
+      { label: "أداء الطفل", path: `/parent/${user.id}/kidPerformance`, state: { user } },
     ],
     student: [
       { label: "الملف الشخصي", path: `/student/${user.id}/profile`, state: { user } },
@@ -60,7 +59,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               className="title-bubble dropdown-toggle"
               onClick={() => setShowLogout(!showLogout)}
             >
-              <h1>فضاء {Role} </h1>
+              <Link to={`/dashboard/${user.id}/${userRole}`}><h1>فضاء {Role} </h1></Link>
             </div>
             {showLogout && (
               <div className="dropdown-menu show">
@@ -81,7 +80,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           {/* User Profile */}
           <div className="user-profile">
             <div className="user-avatar">
-              <img src="/placeholder.svg?height=40&width=40" alt="User" />
+              <img src={user.profilePhoto} alt="" />
             </div>
           </div>
         </div>

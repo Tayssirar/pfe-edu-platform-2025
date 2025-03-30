@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Form, Modal } from "react-bootstrap";
 import { getStudentsByTeacher, linkStudent, deleteStudent, searchStudent } from "../../api/studentList";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import StudentAchievements from "../../components/activity/Achievements"; // import the achievements component
 
 type Student = {
-  photo: string;
+  profilePhoto: string;
   uniqueIdentifier: string;
   childName: string;
   parentName: string;
@@ -14,13 +15,15 @@ type Student = {
 const StudentsList: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showAchievementsModal, setShowAchievementsModal] = useState(false); // State for achievements modal
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null); // Store selected student ID
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Student[]>([]);
   const location = useLocation();
-
+  const navigate = useNavigate();
+  
   const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null");
   const teacherId = user.id;
-
 
   const fetchStudents = async (teacherId: string) => {
     try {
@@ -39,15 +42,13 @@ const StudentsList: React.FC = () => {
   useEffect(() => {
     fetchStudents(teacherId);
   }, [teacherId]); // Run when teacherId changes
-  
-
 
   const handleDelete = async (uniqueIdentifier: string) => {
     try {
       await deleteStudent(teacherId, uniqueIdentifier);
       fetchStudents(teacherId);
     } catch (error) {
-      console.error("خطأ في حذف الطالب", error);
+      console.error("خطأ في حذف التلميذ", error);
     }
   };
 
@@ -60,17 +61,22 @@ const StudentsList: React.FC = () => {
         const result = await searchStudent(query);
         setSearchResults(result ? [result] : []);
       } catch (error) {
-        console.error("خطأ في البحث عن الطالب", error);
+        console.error("خطأ في البحث عن التلميذ", error);
       }
     } else {
       setSearchResults([]);
     }
   };
 
+  const handleViewAchievements = (student: Student, teacherId: string) => {
+    navigate(`/achievements/${student.uniqueIdentifier}`, { state: { student, teacherId } });
+  };
+  
+
   return (
     <div className="container mt-4">
       <Button variant="primary" onClick={() => setShowModal(true)}>
-        إضافة طالب
+        إضافة تلميذ
       </Button>
 
       <Table striped bordered hover className="mt-3">
@@ -86,11 +92,11 @@ const StudentsList: React.FC = () => {
         <tbody>
           {students.map((student) => (
             <tr key={student.uniqueIdentifier}>
-              <td>{student.photo}</td>
+              <td><img src={student.profilePhoto} alt="Student" style={{ width: "30px", height: "30px" }} /></td>
               <td>{student.uniqueIdentifier}</td>
               <td>{student.childName}</td>
               <td>{student.parentName}</td>
-              <td>
+              <td className="d-flex justify-content-between">
                 <Button
                   variant="danger"
                   size="sm"
@@ -98,23 +104,39 @@ const StudentsList: React.FC = () => {
                 >
                   حذف
                 </Button>
+                <Button
+                  variant="info"
+                  size="sm"
+                  onClick={() => handleViewAchievements(student, teacherId)}
+                >
+                  عرض الإنجازات
+                </Button>
+                
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
 
+      {/* Achievements Modal */}
+      <Modal show={showAchievementsModal} onHide={() => setShowAchievementsModal(false)} size="lg">
+        <Modal.Header closeButton>
+        {selectedStudentId && <StudentAchievements studentId={selectedStudentId} />}
+
+        </Modal.Header>
+      </Modal>
+
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>إضافة طالب</Modal.Title>
+          <Modal.Title>إضافة تلميذ</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form >
             <Form.Group>
-              <Form.Label>بحث عن طالب</Form.Label>
+              <Form.Label>بحث عن تلميذ</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="أدخل المعرف الفريد للطالب"
+                placeholder="أدخل المعرف الفريد للتلميذ"
                 value={searchQuery}
                 onChange={handleSearch}
               />
@@ -136,35 +158,33 @@ const StudentsList: React.FC = () => {
                   <tbody>
                     {searchResults.map((student) => (
                       <tr key={student.uniqueIdentifier}>
-                        <td> <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              await linkStudent(teacherId, student.uniqueIdentifier);
-                              fetchStudents(teacherId); 
-                              setShowModal(false);
-                            } catch (error) {
-                              console.error("خطأ في ربط الطالب", error);
-                            }
-                          }}
-                        >
-                          إضافة
-                        </Button>
-
+                        <td>
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await linkStudent(teacherId, student.uniqueIdentifier);
+                                fetchStudents(teacherId); 
+                                setShowModal(false);
+                              } catch (error) {
+                                console.error("خطأ في ربط التلميذ", error);
+                              }
+                            }}
+                          >
+                            إضافة
+                          </Button>
                         </td>
                         <td>{student.uniqueIdentifier}</td>
                         <td>{student.parentName}</td>
                         <td>{student.childName}</td>
-                        <td>{student.photo}</td>
+                        <td><img src={student.profilePhoto} alt="Student" style={{ width: "30px", height: "30px" }} /></td>
                       </tr>
                     ))}
                   </tbody>
                 </Table>
               </div>
             )}
-
-
           </Form>
         </Modal.Body>
       </Modal>

@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
 
       <form onSubmit={(e) => e.preventDefault()}>
         {role === "student" && (
-          <div className="mb-3">
+          <div className="mb-2">
             <label htmlFor="uniqueIdentifier" className="form-label">
               المعرف الوحيد
             </label>
@@ -85,7 +85,7 @@ const LoginPage: React.FC = () => {
 
         {role === "teacher" && (
           <>
-            <div className="mb-3">
+            <div className="mb-2">
               <label htmlFor="uniqueIdentifier" className="form-label">
                 المعرف الوحيد
               </label>
@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-2">
               <label htmlFor="password" className="form-label">
                 كلمة السر
               </label>
@@ -118,7 +118,7 @@ const LoginPage: React.FC = () => {
 
         {role === "parent" && (
           <>
-            <div className="mb-3">
+            <div className="mb-2">
               <label htmlFor="childId" className="form-label">
                 المعرف الوحيد للطفل
               </label>
@@ -132,7 +132,7 @@ const LoginPage: React.FC = () => {
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-2">
               <label htmlFor="password" className="form-label">
                 كلمة السر
               </label>
@@ -157,6 +157,14 @@ const LoginPage: React.FC = () => {
       <div className="text-center register-link">
         <p>
           ليس لديك حساب؟ <Link to={`/register?role=${role}`}>سجل الآن</Link>
+        </p>
+      </div>
+      <div>
+        <p>
+          هل تريد تغيير المستخدم؟{" "}
+          <Link to="/" className="text-primary">
+            الرجوع إلى الصفحة الرئيسية
+          </Link>
         </p>
       </div>
     </div>

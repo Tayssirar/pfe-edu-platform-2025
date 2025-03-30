@@ -197,11 +197,11 @@
 .login-position{
   position: absolute;
   top: 20%;
-  left: 40%;
+  left: 38.5%;
 }
 .register-position{
   position: absolute;
-  top: 15%;
+  top: 10%;
   left: 30%;
 }
 .auth-header {
@@ -401,43 +401,13 @@
 }
 
 /* Dashboard Cards */
-.dashboard-card {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
-  overflow: hidden;
+.dashboard-leaderboard {
+
+  position:absolute;
+  top: 25%;
+  left: 21%;
 }
 
-.dashboard-card .card-header {
-  background-color: white;
-  border-bottom: 1px solid #f0f0f0;
-  padding: 15px 20px;
-}
-
-.dashboard-card .card-header h5 {
-  margin: 0;
-  font-weight: 600;
-}
-
-.dashboard-card .card-body {
-  padding: 20px;
-}
-
-/* Student Table */
-.student-table th {
-  font-weight: 600;
-  color: #495057;
-}
-
-.student-table td {
-  vertical-align: middle;
-}
-
-.progress {
-  height: 8px;
-  border-radius: 4px;
-}
 
 /* Upcoming Classes */
 .upcoming-classes {

@@ -1,14 +1,15 @@
+ 
 import { useState, useEffect } from "react"
 import { Row, Col, Card, Button } from "react-bootstrap"
 import ActivityTimer from "./ActivityTimer"
 import VideoPlayer from "../video-player"
-import { concreteStageData } from "../../assets/data/ConcreteStageData"
+import { concreteStageData, type StageDataMap, type ConcreteStageData } from "../../assets/data/ConcreteStageData"
 
 interface ConcreteStageProps {
   numberRange: { min: number; max: number }
   onCorrectAnswer: () => void
   onWrongAnswer: () => void
-  onStageComplete: () => void
+  onStageComplete: (correct: number, total: number) => void
 }
 
 export default function ConcreteStage({
@@ -17,23 +18,38 @@ export default function ConcreteStage({
   onWrongAnswer,
   onStageComplete,
 }: ConcreteStageProps) {
+  // Map the number range to a specific stage key
+  const getStageKey = (range: { min: number; max: number }): keyof StageDataMap => {
+    if (range.min === 1 && range.max === 5) return "range1"
+    if (range.min === 1 && range.max === 10) return "range2"
+    if (range.min === 1 && range.max === 15) return "range3"
+    return "range1" // default fallback
+  }
+
+  const stageKey = getStageKey(numberRange)
+  const stageData: ConcreteStageData[] = concreteStageData[stageKey] || []
+
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showVideo, setShowVideo] = useState(true)
   const [videoEnded, setVideoEnded] = useState(false)
   const [isTimerActive, setIsTimerActive] = useState(false)
   const [timerKey, setTimerKey] = useState(0) // Key to reset the timer
-  const [completedVideos, setCompletedVideos] = useState<number[]>([])
+  const [completedQuestions, setCompletedQuestions] = useState<number[]>([])
   const [currentActivity, setCurrentActivity] = useState<number | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [showResult, setShowResult] = useState(false)
+  const [correctCount, setCorrectCount] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
 
-  const currentVideo = concreteStageData.find((v) => v.id === currentActivity)
+  // Get the current video from the stage data
+  const currentQuestion = stageData.find((v) => v.id === currentActivity)
 
   // Initialize the first activity when component mounts
   useEffect(() => {
-    if (currentActivity === null && concreteStageData.length > 0) {
-      setCurrentActivity(concreteStageData[0].id)
+    if (currentActivity === null && stageData.length > 0) {
+      setCurrentActivity(stageData[0].id)
     }
-  }, [])
+  }, [stageData, currentActivity])
 
   // Reset states when current activity changes
   useEffect(() => {
@@ -44,6 +60,7 @@ export default function ConcreteStage({
       setIsTimerActive(false)
       setTimerKey((prev) => prev + 1) // Reset timer
       setIsTransitioning(false)
+      setShowResult(false)
     }
   }, [currentActivity])
 
@@ -56,48 +73,53 @@ export default function ConcreteStage({
 
   // Check if all videos are completed and move to next stage
   useEffect(() => {
-    if (completedVideos.length === concreteStageData.length && completedVideos.length > 0) {
-      // All videos completed, move to next stage
+    if (completedQuestions.length === stageData.length && stageData.length > 0) {
+      // All videos completed, move to next stage after a delay
       setTimeout(() => {
-        onStageComplete()
-      }, 1500) // Delay before moving to next stage
+        onStageComplete(correctCount, totalCount)
+      }, 1500)
     }
-  }, [completedVideos, onStageComplete])
+  }, [completedQuestions, onStageComplete, stageData.length, correctCount, totalCount])
 
   const handleOptionSelect = (option: number) => {
     if (selectedAnswer !== null || isTransitioning) return // Prevent multiple selections
 
     setSelectedAnswer(option)
     setIsTimerActive(false) // Stop timer when user selects an answer
-    setIsTransitioning(true) // Start transition state
+    setShowResult(true) // Show result before transitioning
+    setTotalCount((prev) => prev + 1)
 
     // Determine if answer is correct
-    const isCorrect = option === currentVideo?.correctAnswer
+    const isCorrect = option === currentQuestion?.correctAnswer
 
     if (isCorrect) {
+      setCorrectCount((prev) => prev + 1)
       onCorrectAnswer()
     } else {
       onWrongAnswer()
     }
 
-    // Add delay before moving to next video/question
-    setTimeout(
-      () => {
+    // Add delay before transitioning to next video/question
+    // This allows the user to see the result first
+    setTimeout(() => {
+      setIsTransitioning(true)
+
+      // Add delay before moving to next video/question
+      setTimeout(() => {
         if (currentActivity !== null) {
           // Add current activity to completed videos
-          setCompletedVideos((prev) => [...prev, currentActivity])
+          setCompletedQuestions((prev) => [...prev, currentActivity])
 
           // Find next video that hasn't been completed
-          const nextVideo = concreteStageData.find((v) => !completedVideos.includes(v.id) && v.id !== currentActivity)
+          const nextVideo = stageData.find((v) => !completedQuestions.includes(v.id) && v.id !== currentActivity)
 
           if (nextVideo) {
             setCurrentActivity(nextVideo.id)
           }
           // If no next video, the useEffect will handle moving to next stage
         }
-      },
-      isCorrect ? 2500 : 1500,
-    ) // Longer delay for correct answers
+      }, 1000)
+    }, 2000) // Show result for 2 seconds
   }
 
   const handleSkipVideo = () => {
@@ -109,21 +131,28 @@ export default function ConcreteStage({
   // Handle timer expiration
   const handleTimeExpired = () => {
     if (selectedAnswer === null && !isTransitioning) {
-      setIsTransitioning(true)
+      setShowResult(true) // Show the correct answer
+      setTotalCount((prev) => prev + 1)
+      setIsTimerActive(false)
       onWrongAnswer()
 
-      // Move to next video after delay
+      // Add delay to show the correct answer
       setTimeout(() => {
-        if (currentActivity !== null) {
-          setCompletedVideos((prev) => [...prev, currentActivity])
+        setIsTransitioning(true)
 
-          const nextVideo = concreteStageData.find((v) => !completedVideos.includes(v.id) && v.id !== currentActivity)
+        // Move to next video after delay
+        setTimeout(() => {
+          if (currentActivity !== null) {
+            setCompletedQuestions((prev) => [...prev, currentActivity])
 
-          if (nextVideo) {
-            setCurrentActivity(nextVideo.id)
+            const nextVideo = stageData.find((v) => !completedQuestions.includes(v.id) && v.id !== currentActivity)
+
+            if (nextVideo) {
+              setCurrentActivity(nextVideo.id)
+            }
           }
-        }
-      }, 1500)
+        }, 1000)
+      }, 3000) // Show correct answer for 3 seconds
     }
   }
 
@@ -133,12 +162,11 @@ export default function ConcreteStage({
 
   return (
     <div className="concrete-stage">
-
       <Row>
-        {showVideo && currentVideo ? (
+        {showVideo && currentQuestion ? (
           <div>
             <VideoPlayer
-              src={currentVideo.url}
+              src={currentQuestion.url}
               width={600}
               height={340}
               onEnded={() => {
@@ -153,7 +181,7 @@ export default function ConcreteStage({
             </div>
           </div>
         ) : (
-          currentVideo && (
+          currentQuestion && (
             <div className="question-container p-4" style={{ backgroundColor: "white", borderRadius: "10px" }}>
               <ActivityTimer
                 key={timerKey}
@@ -161,14 +189,14 @@ export default function ConcreteStage({
                 onTimeExpired={handleTimeExpired}
                 isActive={isTimerActive && !isTransitioning}
               />
-              <h3 className="text-center">{currentVideo.question}</h3>
-              <Row className="g-3">
-                {currentVideo.options.map((option, index) => (
-                  <Col key={index} md={4}>
+              <h3 className="text-center">{currentQuestion.question}</h3>
+              <Row >
+                {currentQuestion.options.map((option, index) => (
+                  <Col key={index} >
                     <Card
-                      className={`option-card text-center p-3 cursor-pointer ${
+                      className={`option-card text-center p-3 ${
                         selectedAnswer === option
-                          ? option === currentVideo.correctAnswer
+                          ? option === currentQuestion.correctAnswer
                             ? "border-success bg-success bg-opacity-10"
                             : "border-danger bg-danger bg-opacity-10"
                           : "border"
@@ -207,19 +235,26 @@ export default function ConcreteStage({
                       }}
                     >
                       <h3 className="mb-0">{option}</h3>
-                      {selectedAnswer === option && (
+                      {showResult && (
                         <div className="mt-2">
-                          {option === currentVideo.correctAnswer ? (
+                          {option === currentQuestion.correctAnswer ? (
                             <span className="text-success">✓ إجابة صحيحة!</span>
-                          ) : (
+                          ) : selectedAnswer === option ? (
                             <span className="text-danger">✗ إجابة خاطئة</span>
-                          )}
+                          ) : null}
                         </div>
                       )}
                     </Card>
                   </Col>
                 ))}
               </Row>
+
+              {/* Show correct answer when timer expires */}
+              {showResult && selectedAnswer === null && (
+                <div className="alert alert-info mt-3 text-center">
+                  <p>انتهى الوقت! الإجابة الصحيحة هي: {currentQuestion.correctAnswer}</p>
+                </div>
+              )}
             </div>
           )
         )}

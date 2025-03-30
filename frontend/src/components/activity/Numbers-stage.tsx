@@ -1,174 +1,218 @@
-import { useState, useEffect, type FormEvent } from "react"
-import { Row, Col, Card, Form } from "react-bootstrap"
-import { motion } from "framer-motion"
+import type React from "react"
+
+import { useState, useEffect, useRef, type KeyboardEvent } from "react"
+import { Row, Col, Card, Button } from "react-bootstrap"
+import ActivityTimer from "./ActivityTimer"
 
 interface NumbersStageProps {
   numberRange: { min: number; max: number }
   onCorrectAnswer: () => void
   onWrongAnswer: () => void
-  onStageComplete: () => void
-
+  onStageComplete: (correct: number, total: number) => void
 }
 
 export default function NumbersStage({
   numberRange,
   onCorrectAnswer,
   onWrongAnswer,
-onStageComplete,
+  onStageComplete,
 }: NumbersStageProps) {
   const [firstNumber, setFirstNumber] = useState(0)
   const [secondNumber, setSecondNumber] = useState(0)
   const [correctAnswer, setCorrectAnswer] = useState(0)
   const [userAnswer, setUserAnswer] = useState("")
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
-  const [attempts, setAttempts] = useState(0)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [timerKey, setTimerKey] = useState(0)
+  const [isTimerActive, setIsTimerActive] = useState(true)
+  const [currentActivity, setCurrentActivity] = useState(1)
+  const [correctAnswers, setCorrectAnswers] = useState(0)
+  const [totalAnswers, setTotalAnswers] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
-  // Generate a new question when the component mounts or activity number changes
+  const totalActivities = 10
+  const inputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     generateQuestion()
-    setUserAnswer("")
-    setIsCorrect(null)
-    setAttempts(0)
+    resetState()
+
+    // Focus on input when component mounts
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 500)
   }, [numberRange])
 
+  const resetState = () => {
+    setUserAnswer("")
+    setIsCorrect(null)
+    setShowAnswer(false)
+    setIsTimerActive(true)
+    setIsTransitioning(false)
+    setTimerKey((prev) => prev + 1) // Restart the timer
 
+    // Focus on input when state resets
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 500)
+  }
 
   const generateQuestion = () => {
-    // Generate random numbers within the range
     const num1 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
     const num2 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
 
-    // Ensure the sum doesn't exceed the max range
     if (num1 + num2 > numberRange.max) {
       generateQuestion()
       return
     }
-
     setFirstNumber(num1)
     setSecondNumber(num2)
     setCorrectAnswer(num1 + num2)
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
+    submitAnswer()
+  }
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      submitAnswer()
+    }
+  }
+
+  const submitAnswer = () => {
+    if (isTransitioning || userAnswer === "") return
 
     const answer = Number.parseInt(userAnswer)
+    if (isNaN(answer)) return
 
-    if (isNaN(answer)) {
-      return // Don't process empty or non-numeric answers
-    }
+    setIsCorrect(answer === correctAnswer)
+    setShowAnswer(true) // Always show result
+    setIsTimerActive(false) // Stop timer
+    setTotalAnswers((prev) => prev + 1)
 
     if (answer === correctAnswer) {
-      setIsCorrect(true)
-      // Add delay before moving to next question
-      setTimeout(() => {
-        onCorrectAnswer()
-      }, 2500)
+      setCorrectAnswers((prev) => prev + 1)
+      onCorrectAnswer()
     } else {
-      setIsCorrect(false)
-      setAttempts((prev) => prev + 1)
+      onWrongAnswer()
+    }
 
-      // Move to next video instead of forcing retries after 2 attempts
-      if (attempts >= 1) {
+    // Add delay to show the result before moving on
+    setTimeout(() => {
+      setIsTransitioning(true)
+
+      setTimeout(() => {
+        if (currentActivity < totalActivities) {
+          nextQuestion()
+        } else {
+          onStageComplete(correctAnswers, totalAnswers)
+        }
+      }, 1000)
+    }, 2000) // Show result for 2 seconds
+  }
+
+  const nextQuestion = () => {
+    setCurrentActivity((prev) => prev + 1)
+    generateQuestion()
+    resetState()
+  }
+
+  const handleTimeExpired = () => {
+    if (!isTransitioning && isCorrect === null) {
+      setIsTimerActive(false)
+      setShowAnswer(true)
+      setTotalAnswers((prev) => prev + 1)
+      onWrongAnswer()
+
+      // Add delay to show the correct answer
+      setTimeout(() => {
+        setIsTransitioning(true)
+
         setTimeout(() => {
-          onWrongAnswer()
-        }, 1500)
-      } else {
-        onWrongAnswer()
-      }
+          if (currentActivity < totalActivities) {
+            nextQuestion()
+          } else {
+            onStageComplete(correctAnswers, totalAnswers + 1)
+          }
+        }, 1000)
+      }, 3000) // Show correct answer for 3 seconds
     }
   }
 
   return (
     <div className="numbers-stage">
-      <Card className="border-0 shadow-sm mb-4">
+      <Card className="border-0 shadow-sm mb-2">
+        <ActivityTimer
+          key={timerKey}
+          duration={45}
+          onTimeExpired={handleTimeExpired}
+          isActive={isTimerActive && !isTransitioning}
+        />
         <Card.Body className="p-4">
-          <h4 className="text-end mb-4">أجب على عملية الجمع التالية:</h4>
+          <h4 className="text-end mb-2">{`السؤال ${currentActivity} من ${totalActivities}`}</h4>
 
-          <div className="question-container text-center mb-4">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <h2 className="display-4 fw-bold">
-                {firstNumber} + {secondNumber} = ?
-              </h2>
-            </motion.div>
+          <div className="question-container text-center mb-2">
+            <h2 className="display-4 fw-bold">
+              {firstNumber} + {secondNumber} = ?
+            </h2>
           </div>
 
-          <Form onSubmit={handleSubmit}>
-            <Row className="justify-content-center">
-              <Col md={6}>
-                <div className="mb-3 text-end">
-                  <Form.Label>أدخل الإجابة:</Form.Label>
-                  <input
-                    type="number"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    placeholder="أدخل الإجابة هنا"
-                    className="text-center fs-4"
-                    disabled={isCorrect === true}
-                  />
-                </div>
+          <Row className="justify-content-center">
+            <Col md={8}>
+              <span>أدخل الإجابة:</span>
+              <div className="input-group" style={{ direction: "ltr" }}>
+                <input
+                  type="number"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="أدخل الإجابة هنا"
+                  className="form-control text-center"
+                  disabled={isCorrect !== null || isTransitioning}
+                  ref={inputRef}
+                />
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isCorrect !== null || userAnswer === "" || isTransitioning}
+                  variant="primary"
+                >
+                  تحقق
+                </Button>
+              </div>
+            </Col>
+          </Row>
 
-                <div className="text-center">
-                  <button type="submit" className="btn btn-lg" disabled={isCorrect === true || userAnswer === ""}>
-                    تحقق من الإجابة
-                  </button>
-                </div>
-              </Col>
-            </Row>
-          </Form>
-
-          {isCorrect !== null && (
+          {showAnswer && (
             <div className="feedback-container mt-4 text-center">
               {isCorrect ? (
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <h3 className="text-success mb-3">
-                    <span className="me-2">✓</span>
-                    إجابة صحيحة! أحسنت!
-                  </h3>
-                  <div className="celebration-animation">
-
-                  </div>
-                </motion.div>
+                <div className="alert alert-success">
+                  <h4>
+                    <span className="me-2">✓</span> إجابة صحيحة! أحسنت!
+                  </h4>
+                </div>
               ) : (
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <h3 className="text-danger mb-3">
-                    <span className="me-2">✗</span>
-                    إجابة خاطئة
-                  </h3>
-
-                  {attempts >= 2 && (
-                    <div className="hint-container p-3 bg-light rounded mb-3">
-                      <p className="mb-1">تلميح: حاول استخدام أصابعك للعد!</p>
-                      <p className="mb-0">
-                        عد {firstNumber} أصابع، ثم أضف {secondNumber} أصابع أخرى، ثم عد المجموع.
-                      </p>
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    onClick={() => {
-                      setUserAnswer("")
-                      setIsCorrect(null)
-                    }}
-                  >
-                    حاول مرة أخرى
-                  </button>
-                </motion.div>
+                <div className="alert alert-danger">
+                  <h4>
+                    <span className="me-2">✗</span> إجابة خاطئة
+                  </h4>
+                  <div className="mt-2">
+                    <p>الإجابة الصحيحة: {correctAnswer}</p>
+                  </div>
+                </div>
               )}
+            </div>
+          )}
+
+          {currentActivity >= totalActivities && isTransitioning && (
+            <div className="text-center mt-2">
+              <h5>لقد أكملت جميع الأنشطة!</h5>
             </div>
           )}
         </Card.Body>

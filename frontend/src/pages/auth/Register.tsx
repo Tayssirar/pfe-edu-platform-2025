@@ -33,26 +33,35 @@ const RegisterPage: React.FC = () => {
 
   // Function to handle role change and update URL
   const handleRegister = async () => {
-    const { role, parentName, childName, uniqueIdentifier, school, password, confirmPassword, teacherName } = formData;
-
+    console.log("Form Data before validation:", formData);
+  
+    let { role, parentName, childName, uniqueIdentifier, school, password, confirmPassword, teacherName } = formData;
+  
+    // Convert "student" role to "parent"
+    if (role === "student") {
+      role = "parent";
+    }
+  
+    console.log("Transformed Role:", role); // Debugging role transformation
+  
     if (password !== confirmPassword) {
       alert("كلمات السر غير متطابقة");
       return;
     }
-
+  
     const requiredFields =
       role === "parent"
         ? [parentName, childName, uniqueIdentifier, school, password]
         : [teacherName, uniqueIdentifier, school, password];
-
-    if (requiredFields.some((field) => !field)) {
+  
+    if (requiredFields.some((field) => !field?.trim())) {
       alert("يرجى ملء جميع الحقول");
       return;
     }
-
+  
     try {
       const payload = {
-        role,
+        role, // Now "student" is transformed to "parent"
         userId: uniqueIdentifier,
         password,
         parentName: role === "parent" ? parentName : undefined,
@@ -61,15 +70,18 @@ const RegisterPage: React.FC = () => {
         school,
         uniqueIdentifier,
       };
-
+  
+      console.log("Payload being sent:", payload); // Debugging API payload
+  
       const response = await register(payload);
       if (response.status === 201) {
         navigate(`/login?role=${role}`);
       }
     } catch (error: any) {
-      alert(error.response ? error.response.data.message : "An error occurred");
+      alert(error.response ? error.response.data.message : "حدث خطأ أثناء التسجيل");
     }
   };
+  
 
   return (
     <div className="auth-container register-position">
@@ -78,7 +90,7 @@ const RegisterPage: React.FC = () => {
       </h3>
 
       <form onSubmit={(e) => e.preventDefault()}>
-        {formData.role === "parent" && (
+        {(formData.role === "parent" || formData.role === "student") && (
           <div>
             <div className="row mb-3">
               <div className="col-md-6">
@@ -204,6 +216,14 @@ const RegisterPage: React.FC = () => {
       <div className="text-center register-link">
         <p>
           لديك حساب بالفعل؟ <Link to={`/login?role=${formData.role}`}>تسجيل الدخول</Link>
+        </p>
+      </div>
+      <div className="text-center">
+        <p>
+          هل تريد تغيير المستخدم؟{" "}
+          <Link to="/" className="text-primary">
+            الرجوع إلى الصفحة الرئيسية
+          </Link>
         </p>
       </div>
     </div>

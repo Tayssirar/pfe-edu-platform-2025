@@ -21,3 +21,16 @@ export const register = async (data: any) => {
     throw error;
   }
 }
+
+// Update profile photo
+export const updateProfilePhoto = async (userId: string, role: string, photoUrl: string) => {
+  try {
+    await axios.put(`${API_URL}/auth/${role}/${userId}/photo`, { profilePhoto: photoUrl });
+
+  } catch (error) {
+    console.error("Error updating profile photo:", error);
+    console.log(`${API_URL}/auth/${role}/${userId}/photo`);
+
+    localStorage.setItem("profilePhoto", photoUrl); // Fallback in case API fails
+  }
+};

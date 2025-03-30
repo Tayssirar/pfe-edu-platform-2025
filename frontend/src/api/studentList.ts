@@ -45,3 +45,15 @@ export const searchStudent = async (uniqueIdentifier: string) => {
     throw error;
   }
 };
+
+
+// Fetch children specific to the logged-in parent
+export const getChildByParent = async (parentId: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/parent/${parentId}/children`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching children for parent:", error);
+    throw error;
+  }
+};

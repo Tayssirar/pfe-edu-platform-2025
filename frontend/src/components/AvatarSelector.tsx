@@ -1,10 +1,19 @@
 import React from "react";
-
+import avatar1 from "../assets/avatars/avatar1.jpg";
+import avatar2 from "../assets/avatars/avatar2.jpg";
+import avatar3 from "../assets/avatars/avatar3.jpg";
+import avatar4 from "../assets/avatars/avatar4.jpg";
+import avatar5 from "../assets/avatars/avatar5.jpg";
+import avatar6 from "../assets/avatars/avatar6.jpg";
+import avatar7 from "../assets/avatars/avatar7.jpg";
 const avatars = [
-  "/avatars/avatar1.png",
-  "/avatars/avatar2.png",
-  "/avatars/avatar3.png",
-  "/avatars/avatar4.png",
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
 ];
 
 interface AvatarSelectionModalProps {
