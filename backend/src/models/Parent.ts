@@ -5,7 +5,12 @@ interface IParent extends Document {
   uniqueIdentifier: string;
   password: string;
   parentName: string;
-  profilePhoto?: string;
+  avatar: {
+    profile: { type: String },
+    welcome: { type: String },
+    cheerful: { type: String },
+    sad: { type: String },
+  }
   school: string;
   children: mongoose.Schema.Types.ObjectId[];  // Array of student IDs
 }
@@ -15,7 +20,12 @@ const ParentSchema: Schema = new Schema({
   uniqueIdentifier: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   parentName: { type: String, required: true },
-  profilePhoto: { type: String },
+  avatar: {
+    profile: { type: String },
+    welcome: { type: String },
+    cheerful: { type: String },
+    sad: { type: String },
+  },
   school: { type: String, required: true },
   children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }], // Linking to students
 });

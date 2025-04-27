@@ -101,3 +101,22 @@ export const getChildByParent = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error fetching children", error });
   }
 };
+
+// Find students by school who are NOT linked to any teacher yet
+export const getUnlinkedStudentsBySchool = async (req: Request, res: Response) => {
+  try {
+    const { school } = req.params;
+
+    const students = await Student.find({ 
+      school, 
+      teacherId: { $in: [null, undefined] } // Match unlinked students (teacherId is either null or does not exist)
+    });
+
+    console.log("🚀 ~ getUnlinkedStudentsBySchool ~ students:", students);
+    return res.json(students);
+  } catch (error) {
+    console.error("Error fetching unlinked students:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

@@ -23,7 +23,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           name: user.childName,
           school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
-          profilePhoto: user.profilePhoto,
+          avatar: user.avatar,
         },
       });
     } else if (role === "teacher") {
@@ -40,7 +40,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           name: user.teacherName,
           school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
-          profilePhoto: user.profilePhoto,
+          avatar: user.avatar,
         },
       });
     } else if (role === "parent") {
@@ -57,7 +57,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
           name: user.parentName,
           school: user.school,
           uniqueIdentifier: user.uniqueIdentifier,
-          profilePhoto: user.profilePhoto,
+          avatar: user.avatar,
         },
       });
     } else {
@@ -120,12 +120,13 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 };
 
 // Function to update profile photo
-export const updateProfilePhoto = async (req: Request, res: Response) => {
+export const updateAvatar = async (req: Request, res: Response) => {
   const { userId, role } = req.params;
-  const { profilePhoto } = req.body;
-  console.log("🚀 ~ updateProfilePhoto ~ req.body:", req.body)
+  const { avatar } = req.body;
 
-  if (!profilePhoto) {
+  console.log("Updating avatar for:", { userId, role, avatar }); // Debug log
+
+  if (!avatar) {
     return res.status(400).json({ message: "الصورة الرمزية مطلوبة" });
   }
 
@@ -133,13 +134,13 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
     let user;
     switch (role) {
       case "student":
-        user = await Student.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        user = await Student.findOneAndUpdate({ _id: userId }, { avatar }, { new: true });
         break;
       case "teacher":
-        user = await Teacher.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        user = await Teacher.findOneAndUpdate({ _id: userId }, { avatar }, { new: true });
         break;
       case "parent":
-        user = await Parent.findOneAndUpdate({ _id: userId }, { profilePhoto }, { new: true });
+        user = await Parent.findOneAndUpdate({ _id: userId }, { avatar }, { new: true });
         break;
       default:
         return res.status(400).json({ message: "الدور غير صالح" });
@@ -149,9 +150,41 @@ export const updateProfilePhoto = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "المستخدم غير موجود" });
     }
 
-    res.json({ message: "تم تحديث الصورة بنجاح", profilePhoto: user.profilePhoto });
+    res.json({ message: "تم تحديث الصورة بنجاح", avatar: user.avatar });
   } catch (error) {
     console.error("Error updating profile photo:", error);
     res.status(500).json({ message: "خطأ في الخادم" });
+  }
+};
+
+export const getUserInfo = async (req: Request, res: Response): Promise<void> => {
+  const { userId, role } = req.params;
+
+  try {
+    let user;
+    switch (role) {
+      case "student":
+        user = await Student.findById(userId);
+        break;
+      case "teacher":
+        user = await Teacher.findById(userId);
+        break;
+      case "parent":
+        user = await Parent.findById(userId);
+        break;
+      default:
+        res.status(400).json({ message: "Invalid role" });
+        return;
+    }
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };

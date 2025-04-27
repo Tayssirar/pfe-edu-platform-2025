@@ -1,7 +1,8 @@
 import express from "express";
 import { getStudentsByTeacher, linkStudentToTeacher,
      deleteStudent, searchStudentByUniqueIdentifier,
-     getChildByParent } from "../controllers/studentController";
+     getChildByParent, 
+     getUnlinkedStudentsBySchool} from "../controllers/studentController";
 
 const router = express.Router();
 
@@ -20,5 +21,8 @@ router.get("/search/:uniqueIdentifier", searchStudentByUniqueIdentifier);
 
 // Fetch children by parent ID
 router.get("/parent/:parentId/children", getChildByParent);
+
+router.get("/unlinked/:school", getUnlinkedStudentsBySchool);
+
 
 export default router;
