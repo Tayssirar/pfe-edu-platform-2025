@@ -39,11 +39,11 @@ const LandingPage: React.FC = () => {
       <div className="space-box student-space" onClick={() => handleRoleClick("تلميذ")}>
         <h2>فضاء التلميذ</h2>
       </div>
-
+{/* 
       <div className="video-section">
         <VideoPlayer src="https://youtu.be/IYLTc3tGdzc?si=HyyqnqUKshzh9QXr" width={300} height={200} />
       </div>
-
+*/}
       <div className="children-illustration">
         <img src={kidsImage || "/placeholder.svg"} alt="Children learning" />
       </div>
