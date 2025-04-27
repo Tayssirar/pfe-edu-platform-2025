@@ -53,6 +53,7 @@ const Feedback: React.FC<FeedbackProps> = ({ teacherId, studentId }) => {
 
   return (
     <div>
+      <div >
       <h4>الملاحظات السابقة</h4>
       {fetchingFeedback ? (
         <Spinner animation="border" />
@@ -67,7 +68,7 @@ const Feedback: React.FC<FeedbackProps> = ({ teacherId, studentId }) => {
             >
               <div>
                 <span className="text-muted">الرسالة</span>
-                <i className="bi bi-text-left" style={{ marginLeft: "5px" }}></i>
+                <i className="bi bi-text-left" ></i>
               </div>
               <div>
                 <small className="text-muted">{new Date(fb.timestamp).toLocaleString()}</small>
@@ -81,8 +82,11 @@ const Feedback: React.FC<FeedbackProps> = ({ teacherId, studentId }) => {
 
       {/* Button to Open Feedback Modal */}
       <Button variant="primary" className="mt-2" onClick={() => setShowFeedbackModal(true)}>
-        إرسال ملاحظات إلى ولي الأمر
+        أرسل ملاحظات
+        <br/>
+         إلى الولي
       </Button>
+      </div>
 
       {/* Feedback Modal */}
       <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)}>

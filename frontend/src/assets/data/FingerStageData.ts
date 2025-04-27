@@ -3,116 +3,120 @@ import finger from "../fingers/finger.png"
 interface FingerStageData {
   id: number
   videoUrl: string
-  firstNumber: number
-  secondNumber: number
-  firstNumberImage: string
-  secondNumberImage: string
-  question: string
-  correctAnswer: number
 }
+
 export interface StageDataMap {
   range1: FingerStageData[]
   range2: FingerStageData[]
-  range3: FingerStageData[]
 }
 export const fingersStageData: StageDataMap = {
   range1: [
+
     {
-      id: 0,
-      videoUrl: "https://youtu.be/xNw1SSz18Gg?si=GWHcFwZOTGVjBWQe",
-      firstNumberImage: finger,
-      firstNumber: 3,
-      secondNumber: 2,
-      secondNumberImage: finger,
-      question: "كم يساوي 3 + 2؟",
-      correctAnswer: 5,
-    },
-    {
+      //1+2
       id: 1,
-      videoUrl: "https://youtu.be/BC5dI-8wysY?si=QomJ-I41dwuCprlE",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 4,
-      secondNumber: 1,
-      question: "كم يساوي 4 + 1؟",
-      correctAnswer: 5,
+      videoUrl: "https://youtu.be/_D2hcs73Oy4?si=Dtg0TNHEeGYXZP1r",
     },
     {
+      //2+3
       id: 2,
-      videoUrl: "https://youtu.be/eBVqcTEC3zQ?si=7MvwclbLuP3P6aq6",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 5,
-      secondNumber: 2,
-      question: "كم يساوي 5 + 2؟",
-      correctAnswer: 7,
-    }
+      videoUrl: "https://youtu.be/nyuhNMf5_w4?si=euF0ZdcURWYiBRPF",
+      
+    },
+    {
+      //3+3
+      id: 3,
+      videoUrl: "https://youtu.be/N9nsHDEPsdE?si=fYfnvpoFRKn0yx3B",
+    },
+    {
+      //4+2
+      id: 4,
+      videoUrl: "https://youtu.be/fRkwRlzEV6w?si=eab1lKyC5fF6tN-D",
+    },
+    {
+      //4+3
+      id: 5,
+      videoUrl: "https://youtu.be/HMb0w-MMptg?si=-TPStTagRwrb8n5T",
+    },
+    {
+      //4+4
+      id: 6,
+      videoUrl: "https://youtu.be/29fnhmMQ9ZA?si=6KFsS4pq_2RzJRVd",
+    },
+    {
+      //5+2
+      id: 7,
+      videoUrl: "https://youtu.be/lPoUJsqMreE?si=JufGNbF_dXyI-Irx",
+    },
+    {
+      //5+3
+      id: 8,
+      videoUrl: "https://youtu.be/k90kBgIMZA4?si=3--TZLRrKNhkRZ6N",
+    },
+    {
+      //5+4
+      id: 9,
+      videoUrl: "https://youtu.be/tlbmTqx2y3o?si=wABeKVYQZzne0sre",
+    },
+    {
+      //5+5
+      id: 10,
+      videoUrl: "https://youtu.be/y6d2evK5BQA?si=xyEp5MrT6pZjA-2a",
+    },
+
   ],
   range2: [
-  // Range 1-10
     {
+      //6+2
+      id: 1,
+      videoUrl: "https://youtu.be/tR2HlfWEOjg?si=9sq4jywZxuFpW9NI",
+    },
+    {
+      //6+7
+      id: 2,
+      videoUrl: "https://youtu.be/2mko08Ct0Rg?si=gpHvAc6We-fhYOL0",
+    },
+    {
+      //4+9
       id: 3,
-      videoUrl: "https://youtu.be/xNw1SSz18Gg?si=GWHcFwZOTGVjBWQe",
-      firstNumberImage: finger,
-      firstNumber: 6,
-      secondNumber: 4,
-      secondNumberImage: finger,
-      question: "كم يساوي 6 + 4؟",
-      correctAnswer: 10,
+      videoUrl: "https://youtu.be/hECixEljIpI?si=Q9Tubhlf-U2X1pmG",
     },
     {
+      //5+9
       id: 4,
-      videoUrl: "https://youtu.be/BC5dI-8wysY?si=QomJ-I41dwuCprlE",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 7,
-      secondNumber: 3,
-      question: "كم يساوي 7 + 3؟",
-      correctAnswer: 10,
+      videoUrl: "https://youtu.be/JmHFYWnP_gc?si=xvdK4HuKW5ZJjFSj",
     },
     {
+      //2+10
       id: 5,
-      videoUrl: "https://youtu.be/eBVqcTEC3zQ?si=7MvwclbLuP3P6aq6",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 8,
-      secondNumber: 2,
-      question: "كم يساوي 8 + 2؟",
-      correctAnswer: 10,
+      videoUrl: "https://youtu.be/c4bJEQt9XgI?si=GKR_At8caMxEF0wD",
+    },
+    {
+      //7+9
+      id: 6,
+      videoUrl: "https://youtu.be/bDVDCaQNU3M?si=3-dZQLcmYzDfSpM4",
+    },
+    {
+      //8+9
+      id: 7,
+      videoUrl: "https://youtu.be/tvoUY66DPFc?si=XTEAejxvBTGs4vTs",
+    },
+    {
+      //3+8
+      id: 8,
+      videoUrl: "https://youtu.be/EsjiKL5qiJM?si=w3o-ouxpqSUeM6fa",
+    },
+    {
+      //3+7
+      id: 9,
+      videoUrl: "https://youtu.be/Wg9EY_BUR40?si=2q5DEOHVuuckFuoo",
+    },
+    {
+      //6+8
+      id: 10,
+      videoUrl: "https://youtu.be/cB3ulwm02tg?si=PMzjyoSj9N82MQ_a",
     }
   ],
-  range3: [
-    // Range 1-15
-    {
-      id: 6,
-      videoUrl: "https://youtu.be/xNw1SSz18Gg?si=GWHcFwZOTGVjBWQe",
-      firstNumberImage: finger,
-      firstNumber: 9,
-      secondNumber: 6,
-      secondNumberImage: finger,
-      question: "كم يساوي 9 + 6؟",
-      correctAnswer: 15,
-    },
-    {
-      id: 7,
-      videoUrl: "https://youtu.be/BC5dI-8wysY?si=QomJ-I41dwuCprlE",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 8,
-      secondNumber: 7,
-      question: "كم يساوي 8 + 7؟",
-      correctAnswer: 15,
-    },
-    {
-      id: 8,
-      videoUrl: "https://youtu.be/eBVqcTEC3zQ?si=7MvwclbLuP3P6aq6",
-      firstNumberImage: finger,
-      secondNumberImage: finger,
-      firstNumber: 10,
-      secondNumber: 5,
-      question: "كم يساوي 10 + 5؟",
-      correctAnswer: 15,
-    }
-  ]
 }
+
 

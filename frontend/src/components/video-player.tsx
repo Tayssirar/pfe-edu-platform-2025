@@ -21,10 +21,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ src, width = 600, height = 34
     playerVars: {
       autoplay: 1,
       controls: 1,
-      modestbranding: 1,
-      rel: 0,
+      modestbranding: 1, // minimal branding
+      rel: 0,             // only related videos from same channel
+      showinfo: 0,        // deprecated but can still help
     },
   };
+  
 
   return (
     <YouTube

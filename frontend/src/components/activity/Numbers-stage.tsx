@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 
 import { useState, useEffect, useRef, type KeyboardEvent } from "react"
@@ -30,6 +32,8 @@ export default function NumbersStage({
   const [totalAnswers, setTotalAnswers] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
+  const [isTrainingStage, setIsTrainingStage] = useState(true) // <-- New state to control phase
+
   const totalActivities = 10
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -37,11 +41,8 @@ export default function NumbersStage({
     generateQuestion()
     resetState()
 
-    // Focus on input when component mounts
     setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus()
-      }
+      inputRef.current?.focus()
     }, 500)
   }, [numberRange])
 
@@ -51,28 +52,28 @@ export default function NumbersStage({
     setShowAnswer(false)
     setIsTimerActive(true)
     setIsTransitioning(false)
-    setTimerKey((prev) => prev + 1) // Restart the timer
+    setTimerKey((prev) => prev + 1)
 
-    // Focus on input when state resets
     setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus()
-      }
+      inputRef.current?.focus()
     }, 500)
   }
 
   const generateQuestion = () => {
-    const num1 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
-    const num2 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
-
-    if (num1 + num2 > numberRange.max) {
-      generateQuestion()
-      return
-    }
+    let num1, num2
+    let tries = 0
+  
+    do {
+      num1 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
+      num2 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
+      tries++
+    } while (num1 + num2 > numberRange.max && tries < 10)
+  
     setFirstNumber(num1)
     setSecondNumber(num2)
     setCorrectAnswer(num1 + num2)
   }
+  
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -92,19 +93,27 @@ export default function NumbersStage({
     const answer = Number.parseInt(userAnswer)
     if (isNaN(answer)) return
 
-    setIsCorrect(answer === correctAnswer)
-    setShowAnswer(true) // Always show result
-    setIsTimerActive(false) // Stop timer
+    const correct = answer === correctAnswer
+
+    setIsCorrect(correct)
+    setShowAnswer(true)
+    setIsTimerActive(false)
     setTotalAnswers((prev) => prev + 1)
 
-    if (answer === correctAnswer) {
-      setCorrectAnswers((prev) => prev + 1)
-      onCorrectAnswer()
+    if (!isTrainingStage) {
+      // <-- only in second phase we call the parent functions
+      if (correct) {
+        setCorrectAnswers((prev) => prev + 1)
+        onCorrectAnswer()
+      } else {
+        onWrongAnswer()
+      }
     } else {
-      onWrongAnswer()
+      if (correct) {
+        setCorrectAnswers((prev) => prev + 1) // still count them internally
+      }
     }
 
-    // Add delay to show the result before moving on
     setTimeout(() => {
       setIsTransitioning(true)
 
@@ -112,10 +121,21 @@ export default function NumbersStage({
         if (currentActivity < totalActivities) {
           nextQuestion()
         } else {
-          onStageComplete(correctAnswers, totalAnswers)
+          if (isTrainingStage) {
+            // Training finished -> move to real stage
+            setIsTrainingStage(false)
+            setCurrentActivity(1)
+            setCorrectAnswers(0)
+            setTotalAnswers(0)
+            generateQuestion()
+            resetState()
+          } else {
+            // Real stage finished -> complete
+            onStageComplete(correctAnswers + (correct ? 1 : 0), totalAnswers + 1)
+          }
         }
       }, 1000)
-    }, 2000) // Show result for 2 seconds
+    }, 2000)
   }
 
   const nextQuestion = () => {
@@ -129,9 +149,11 @@ export default function NumbersStage({
       setIsTimerActive(false)
       setShowAnswer(true)
       setTotalAnswers((prev) => prev + 1)
-      onWrongAnswer()
 
-      // Add delay to show the correct answer
+      if (!isTrainingStage) {
+        onWrongAnswer()
+      }
+
       setTimeout(() => {
         setIsTransitioning(true)
 
@@ -139,24 +161,37 @@ export default function NumbersStage({
           if (currentActivity < totalActivities) {
             nextQuestion()
           } else {
-            onStageComplete(correctAnswers, totalAnswers + 1)
+            if (isTrainingStage) {
+              setIsTrainingStage(false)
+              setCurrentActivity(1)
+              setCorrectAnswers(0)
+              setTotalAnswers(0)
+              generateQuestion()
+              resetState()
+            } else {
+              onStageComplete(correctAnswers, totalAnswers + 1)
+            }
           }
         }, 1000)
-      }, 3000) // Show correct answer for 3 seconds
+      }, 3000)
     }
   }
 
   return (
-    <div className="numbers-stage">
-      <Card className="border-0 shadow-sm mb-2">
+    <div className="text-center " style={{ width: "50%" , top: "50%", left: "50%", transform: "translate(-50%, -50%)", position: "absolute"}}>
+      <Card className="border-0 shadow-sm p-3 ">
         <ActivityTimer
           key={timerKey}
-          duration={45}
+          duration={60}
           onTimeExpired={handleTimeExpired}
           isActive={isTimerActive && !isTransitioning}
         />
         <Card.Body className="p-4">
-          <h4 className="text-end mb-2">{`السؤال ${currentActivity} من ${totalActivities}`}</h4>
+          <h4 className="text-end mb-2">
+            {isTrainingStage
+              ? `مرحلة التدريب: السؤال ${currentActivity} من ${totalActivities}`
+              : `المرحلة الرئيسية: السؤال ${currentActivity} من ${totalActivities}`}
+          </h4>
 
           <div className="question-container text-center mb-2">
             <h2 className="display-4 fw-bold">
@@ -207,12 +242,6 @@ export default function NumbersStage({
                   </div>
                 </div>
               )}
-            </div>
-          )}
-
-          {currentActivity >= totalActivities && isTransitioning && (
-            <div className="text-center mt-2">
-              <h5>لقد أكملت جميع الأنشطة!</h5>
             </div>
           )}
         </Card.Body>

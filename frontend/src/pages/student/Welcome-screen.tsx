@@ -1,74 +1,81 @@
-import React, { useState, useEffect } from "react";
-import { Row } from "react-bootstrap";
-import { motion } from "framer-motion";
-import kid_showing from "../../assets/kid_showing.png";
-import kid_cheerful from "../../assets/kid_cheerful.png";
-import kid_cartoon from "../../assets/kid_cartoon.png";
-import { getStudentProgress } from "../../api/studentActivity"; // Import the API function
-import MathLearningActivity from "./MathLearningActivity"; // Import the activity component
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Row } from "react-bootstrap"
+import { motion } from "framer-motion"
+import { getStudentProgress } from "../../api/studentActivity"
+import MathLearningActivity from "./MathLearningActivity"
+import { useLocation } from "react-router-dom"
 
 const WelcomeScreen: React.FC = () => {
-  const [character, setCharacter] = useState(kid_cartoon); // Default character
-  const [message, setMessage] = useState("مرحبًا بك في منصة تعلم الرياضيات! استعد للبدء!");
-  const [loading, setLoading] = useState(true); // Loading state for fetching progress
-  const [studentProgress, setStudentProgress] = useState<any>(null); // Store student progress
-  const [studentId, setStudentId] = useState<string>("guest"); // Default student ID
-  const [activityStarted, setActivityStarted] = useState(false); // Track if the activity has started
+  const location = useLocation()
+  const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null")
+  const studentId = user.id
+  const avatar = user.avatar
 
-  // Fetch student progress and ID on component mount
+  const [character, setCharacter] = useState(avatar.welcome)
+  const [message, setMessage] = useState("مرحبًا بك في منصة تعلم الرياضيات! استعد للبدء!")
+  const [loading, setLoading] = useState(true)
+  const [studentProgress, setStudentProgress] = useState<any>(null)
+  const [activityStarted, setActivityStarted] = useState(false)
+
   useEffect(() => {
     const fetchProgressAndId = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        const studentId = user?.id || "guest";
-        setStudentId(studentId);
+        const response = await getStudentProgress(studentId)
+        const progress = response.progress
 
-        const response = await getStudentProgress(studentId);
-        const progress = response.progress;
         console.log("🚀 ~ fetchProgressAndId ~ progress:", progress)
-        console.log("🚀 ~ fetchProgressAndId ~ progress.currentRangeMax :", progress.currentRangeMax )
 
-        if (progress.currentRangeMax >= 50 && progress.currentStage > 3) {
-          setMessage("لقد أكملت جميع المراحل! 🎉 أحسنت العمل 👏.");
-          setCharacter(kid_cheerful);
-        } else if (progress.currentStage > 1 || progress.currentRangeMax > 5) {
-          setMessage(`مرحبًا مرة أخرى! استمر من حيث توقفت.`);
-          setCharacter(kid_showing);
+        // Check if this is a new student or if progress data exists
+        if (!progress || !progress.range || progress.range.length === 0) {
+          setMessage("مرحبًا بك في منصة تعلم الرياضيات! استعد للبدء!")
+          setCharacter(avatar.welcome)
         } else {
-          setMessage("مرحبًا بك! استعد لبدء نشاط جديد.");
+          const stage = progress.currentStage
+          const rangeId = progress.currentRangeId
+          const activity = progress.totalActivities
+
+          // Final stage + final range → completed everything
+          if (stage === 3 && rangeId === 2 && activity >= 80) {
+            setMessage("لقد أكملت جميع المراحل! 🎉 أحسنت العمل 👏.")
+            setCharacter(avatar.cheerful)
+          } else {
+            setMessage(`مرحبًا بك مرة أخرى! أنت الآن في المرحلة ${stage} من النطاق ${rangeId}. لنُكمل التعلُّم!`)
+            setCharacter(avatar.welcome)
+          }
         }
 
-        setStudentProgress(progress);
+        setStudentProgress(progress)
       } catch (error) {
-        console.error("Failed to fetch student progress:", error);
-        setMessage("تعذر تحميل تقدمك. يرجى المحاولة مرة أخرى.");
+        console.error("Failed to fetch student progress:", error)
+        setMessage("تعذر تحميل تقدمك. يرجى المحاولة مرة أخرى.")
+        setCharacter(avatar.sad)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchProgressAndId();
-  }, []);
+    fetchProgressAndId()
+  }, [])
 
   const handleStart = () => {
-    setActivityStarted(true);
-  };
-
+    setActivityStarted(true)
+  }
 
   if (loading) {
     return (
       <div className="text-center">
         <p>جارٍ تحميل تقدمك...</p>
       </div>
-    );
+    )
   }
 
-  // If the activity has started, render the MathLearningActivity component
   if (activityStarted) {
-    return <MathLearningActivity studentProgress={studentProgress} studentId={studentId} />;
+    return <MathLearningActivity avatar={avatar} studentId={studentId} />
   }
 
-  // Render the welcome screen
   return (
     <div>
       <Row
@@ -82,7 +89,13 @@ const WelcomeScreen: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="position-relative d-inline-block"
         >
-          <img src={character} alt="kid character" width={120} height={120} className="img-fluid" />
+          <img
+            src={character || "/placeholder.svg"}
+            alt="kid character"
+            width={120}
+            height={120}
+            className="img-fluid"
+          />
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -127,7 +140,7 @@ const WelcomeScreen: React.FC = () => {
         </div>
       </Row>
     </div>
-  );
-};
+  )
+}
 
-export default WelcomeScreen;
+export default WelcomeScreen

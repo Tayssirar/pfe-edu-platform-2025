@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useRef } from "react"
 import { ProgressBar } from "react-bootstrap"
 import clockTick from "../../assets/sounds/clock-tick.mp3"
@@ -5,7 +7,7 @@ import clockTick from "../../assets/sounds/clock-tick.mp3"
 interface ActivityTimerProps {
   duration: number // in seconds
   onTimeExpired: () => void
-  isActive: boolean // New prop to control the timer's activity
+  isActive: boolean
 }
 
 export default function ActivityTimer({ duration, onTimeExpired, isActive }: ActivityTimerProps) {
@@ -13,11 +15,13 @@ export default function ActivityTimer({ duration, onTimeExpired, isActive }: Act
   const [tickSound, setTickSound] = useState<HTMLAudioElement | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const hasExpiredRef = useRef<boolean>(false)
+  const hasStartedSoundRef = useRef<boolean>(false) // 🔥 New ref to control when sound plays
 
   useEffect(() => {
     const audio = new Audio(clockTick)
-    audio.volume = 0.3
+    audio.volume = 0.7
     setTickSound(audio)
+    audio.load()
 
     return () => {
       audio.pause()
@@ -27,31 +31,25 @@ export default function ActivityTimer({ duration, onTimeExpired, isActive }: Act
     }
   }, [])
 
-  // Reset timer when duration changes or when isActive becomes true
   useEffect(() => {
     setTimeLeft(duration)
     hasExpiredRef.current = false
+    hasStartedSoundRef.current = false // 🔥 Reset when timer is reset
   }, [duration, isActive])
 
   useEffect(() => {
     if (!isActive || !tickSound) {
-      // Clear any existing timer when inactive
       if (timerRef.current) {
         clearInterval(timerRef.current)
         timerRef.current = null
       }
+      if (tickSound) {
+        tickSound.pause()
+        tickSound.currentTime = 0
+      }
       return
     }
 
-    const playSound = () => {
-      if (tickSound && timeLeft <= 10) {
-        // Only play sound in last 10 seconds
-        tickSound.currentTime = 0
-        tickSound.play().catch((err) => console.error("Error playing sound:", err))
-      }
-    }
-
-    // Clear any existing timer before setting a new one
     if (timerRef.current) {
       clearInterval(timerRef.current)
     }
@@ -59,11 +57,9 @@ export default function ActivityTimer({ duration, onTimeExpired, isActive }: Act
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current)
-          }
-
-          // Only call onTimeExpired once
+          clearInterval(timerRef.current!)
+          tickSound?.pause()
+          tickSound!.currentTime = 0
           if (!hasExpiredRef.current) {
             hasExpiredRef.current = true
             onTimeExpired()
@@ -71,20 +67,27 @@ export default function ActivityTimer({ duration, onTimeExpired, isActive }: Act
           return 0
         }
 
-        playSound()
+        // 🔥 Start sound when reaching 26 seconds
+        if (prev === 26 && tickSound && !hasStartedSoundRef.current) {
+          tickSound.currentTime = 0
+          tickSound.play().catch((err) => console.error("Error playing sound:", err))
+          hasStartedSoundRef.current = true
+        }
+
         return prev - 1
       })
     }, 1000)
 
     return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
+      clearInterval(timerRef.current!)
+      if (tickSound) {
+        tickSound.pause()
+        tickSound.currentTime = 0
       }
     }
-  }, [isActive, onTimeExpired, tickSound, timeLeft])
+  }, [isActive, onTimeExpired, tickSound])
 
   const percentage = (timeLeft / duration) * 100
-
   let variant: "success" | "warning" | "danger" = "success"
   if (percentage < 30) variant = "danger"
   else if (percentage < 60) variant = "warning"
@@ -99,4 +102,3 @@ export default function ActivityTimer({ duration, onTimeExpired, isActive }: Act
     </div>
   )
 }
-

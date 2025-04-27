@@ -1,7 +1,8 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { Card, Row, Col, Table, Badge } from "react-bootstrap"
+import { Row, Col, Table, Badge } from "react-bootstrap"
 import { getStudentProgress } from "../../api/studentActivity"
-import { Award } from "react-bootstrap-icons"
 
 interface StudentProgressProps {
   studentId: string
@@ -9,7 +10,7 @@ interface StudentProgressProps {
 
 interface StageScore {
   range: string
-  stage: number
+  stageId: number
   correct: number
   total: number
   date: string
@@ -17,11 +18,10 @@ interface StageScore {
 
 interface ProgressData {
   currentStage: number
-  currentRangeMin: number
-  currentRangeMax: number
+  currentRangeId: number
   score: number
   totalQuestions: number
-  stageScores: StageScore[]
+  stageData: StageScore[]
   lastUpdated: string
 }
 
@@ -34,32 +34,68 @@ const getBadgeType = (percentage: number) => {
   return ""
 }
 
-// Badge emojis
+// Badge icons
 const badgeIcons: Record<string, string> = {
   gold: "🏅",
   silver: "🥈",
   bronze: "🥉",
-  participation: "🔰"
+  participation: "🔰",
 }
 
-// Badge label
+// Badge labels
 const badgeLabels: Record<string, string> = {
   gold: "وسام ذهبي",
   silver: "وسام فضي",
   bronze: "وسام برونزي",
-  participation: "شارة مشاركة"
+  participation: "شارة مشاركة",
 }
 
 export default function StudentAchievements({ studentId }: StudentProgressProps) {
-  const [studentProgress, setStudentProgress] = useState<ProgressData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [progressData, setProgressData] = useState<ProgressData | null>(null)
 
   useEffect(() => {
     const fetchStudentProgress = async () => {
       try {
         const response = await getStudentProgress(studentId)
-        const data = response.progress
-        setStudentProgress(data)
+        if (response && response.progress) {
+          const data = response.progress
+          const stageData: StageScore[] = []
+
+          data.range.forEach((range: any) => {
+            const rangeStr = `${range.RangeMin}-${range.RangeMax}`
+            if (range.stages && Array.isArray(range.stages)) {
+              range.stages.forEach((stage: any) => {
+                if (stage && stage.stageId) {
+                  stageData.push({
+                    range: rangeStr,
+                    stageId: stage.stageId,
+                    correct: stage.correctAnswer || 0,
+                    total: stage.stageTotalActivity || 0,
+                    date: stage.date || new Date().toISOString(),
+                  })
+                }
+              })
+            } else if (range.stage) {
+              stageData.push({
+                range: rangeStr,
+                stageId: range.stage.stageId || 0,
+                correct: range.stage.correctAnswer || 0,
+                total: range.stage.stageTotalActivity || 0,
+                date: range.stage.date || new Date().toISOString(),
+              })
+            }
+          })
+
+          setProgressData({
+            currentStage: data.currentStage,
+            currentRangeId: data.currentRangeId,
+            score: data.score,
+            totalQuestions: data.totalActivities,
+            stageData: stageData,
+            lastUpdated: data.lastUpdated,
+          })
+        }
         setLoading(false)
       } catch (error) {
         console.error("Error fetching student progress:", error)
@@ -69,135 +105,141 @@ export default function StudentAchievements({ studentId }: StudentProgressProps)
     fetchStudentProgress()
   }, [studentId])
 
-  // Calculate progress bar percentage
-  const calculateProgress = (score: number, totalQuestions: number) => {
-    return totalQuestions > 0 ? (score / totalQuestions) * 100 : 0
+  if (loading) {
+    return (
+      <div className="text-center p-4">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">جاري التحميل...</span>
+        </div>
+      </div>
+    )
   }
 
-  // Get total score
-  const getTotalScore = () => {
-    if (!studentProgress?.stageScores) return 0
-    return studentProgress.stageScores.reduce((acc, score) => acc + score.correct, 0)
+  if (!progressData) {
+    return <p className="text-center text-danger">لم يتم العثور على بيانات للتقدم.</p>
   }
 
-  // Get total questions
-  const getTotalQuestions = () => {
-    if (!studentProgress?.stageScores) return 0
-    return studentProgress.stageScores.reduce((acc, score) => acc + score.total, 0)
+  const competenceText =
+    progressData.currentRangeId === 1
+      ? "المهارة الحالية: مهارة 1 حل الأعداد الأقل من 5"
+      : "المهارة الحالية: مهارة 2 حل الأعداد الأقل من 10"
+
+  const getRangeString = (rangeId: number) => {
+    const rangeMin = (rangeId - 1) * 5 + 1
+    const rangeMax = rangeId * 5
+    return `${rangeMin}-${rangeMax}`
   }
 
-  const totalScore = getTotalScore()
-  const totalQuestions = getTotalQuestions()
-  const percentage = calculateProgress(totalScore, totalQuestions)
-  const badgeType = getBadgeType(percentage)
+  const filteredStageData1 = progressData.stageData.filter(
+    (s) => s.range === getRangeString(1)
+  )
+  const filteredStageData2 = progressData.stageData.filter(
+    (s) => s.range === getRangeString(2)
+  )
+
+  const badgeColor = {
+    gold: "warning",
+    silver: "primary",
+    bronze: "info",
+    participation: "success",
+  }
+
+  const renderTable = (data: StageScore[], title: string) => {
+    const totalStages = 3; // example: 3 stages per range
+    const totalQuestions = data.reduce((sum, score) => sum + score.total, 0);
+    const totalCorrect = data.reduce((sum, score) => sum + score.correct, 0);
+    return (
+      <>
+    <Table bordered hover responsive className="shadow-sm">
+      <thead className="text-center bg-success text-white">
+        <tr>
+          <th colSpan={4} className="text-center text-primary">
+            {title}
+          </th>
+        </tr>
+        <tr>
+          <th>المرحلة</th>
+          <th>إجمالي الأسئلة</th>
+          <th>الإجابات الصحيحة</th>
+          <th>الشارة</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[...Array(totalStages)].map((_, idx) => {
+          const stageId = idx + 1;
+          const stageScore = data.find((s) => s.stageId === stageId);
+
+          if (stageScore) {
+            const percentage = stageScore.total > 0 ? (stageScore.correct / stageScore.total) * 100 : 0;
+            const badge = getBadgeType(percentage);
+
+            return (
+              <tr key={stageId} className="text-center align-middle">
+                <td className="fw-bold">{stageId}</td>
+                <td>{stageScore.total}</td>
+                <td>{stageScore.correct}</td>
+                <td>
+                  {badge ? (
+                    <>
+                      <div style={{ fontSize: "1.5rem" }}>{badgeIcons[badge]}</div>
+                      <Badge bg={badgeColor[badge as keyof typeof badgeColor]} className="mt-2">
+                        {badgeLabels[badge]}
+                      </Badge>
+                    </>
+                  ) : (
+                    <span className="text-muted">لا توجد شارة</span>
+                  )}
+                </td>
+              </tr>
+            );
+          } else {
+            // Stage not done yet
+            return (
+              <tr key={stageId} className="text-center align-middle text-muted">
+                <td className="fw-bold">{stageId}</td>
+                <td>0</td>
+                <td>0</td>
+                <td>
+                  <div style={{ fontSize: "1.5rem" }}>🔒</div>
+                  <div>لم يتم إنجازها</div>
+                </td>
+              </tr>
+            );
+          }
+        })}
+      </tbody>
+      <tfoot>
+        <tr className="text-center fw-bold">
+          <td>الإجمالي</td>
+          <td>{totalQuestions}</td>
+          <td>{totalCorrect}</td>
+          <td>-</td>
+        </tr>
+      </tfoot>
+    </Table>
+      </>
+    )
+  }
 
   return (
-    <div>
-      <Col lg={4} className="align-items-center text-center position-absolute width-100"
-        style={{ top: "80px", left: "33.5%" }}>
-        
-        {/* Badge */}
-        <div style={{
-          position: "absolute",
-          top: "60%",
-          left: "-22%",
-          transform: "translate(-50%, -50%)",
-          zIndex: 1,
-          background: "white",
-          padding: "10px",
-          borderRadius: "30%",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
-        }}>
-          <h1 style={{ fontSize: "70px" }}>{badgeIcons[badgeType]}</h1>
-          <Badge bg="primary">{badgeLabels[badgeType]}</Badge>
-        </div>
+    <div className="position-relative p-4">
+      {/* Top Right Info */}
+      <div className="position-absolute mt-3 start-50 translate-middle p-3 text-center bg-light shadow-sm rounded"> 
+        <div className="fw-bold text-success">{competenceText}</div>
+        <div className="text-secondary">المرحلة الحالية: {progressData.currentStage} من 3</div>
+      </div>
 
-        <Card className="border-0 shadow-sm">
-          <Card.Header className="bg-success text-white">
-            <h5 className="mb-0 text-end">
-              <Award size={20} className="me-2" />
-              الإنجازات والشارات
-            </h5>
-          </Card.Header>
-          <Card.Body>
-            {loading ? (
-              <div className="text-center p-4">
-                <div className="spinner-border text-success" role="status">
-                  <span className="visually-hidden">جاري التحميل...</span>
-                </div>
-              </div>
-            ) : (
-              <>
-                {studentProgress ? (
-                  <>
-                    <div className="child-stats text-end">
-                      <h5> درس الجمع</h5>
-                      <Row className="mb-2">
-                        <Col>
-                          النطاق العددي {studentProgress.currentRangeMin} من {studentProgress.currentRangeMax}
-                        </Col>
-                        <Col>المرحلة الحالية {studentProgress.currentStage} من 3</Col>
-                      </Row>
-
-                      <div>
-                        <p className="mb-1">
-                          النتيجة الإجمالية {percentage.toFixed(2)}%
-                        </p>
-                        <div className="progress mb-2">
-                          <div
-                            className="progress-bar bg-warning"
-                            role="progressbar"
-                            style={{ width: `${percentage}%` }}
-                            aria-valuenow={studentProgress.score}
-                            aria-valuemin={0}
-                            aria-valuemax={studentProgress.totalQuestions}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Table bordered hover className="mt-3">
-                      <thead>
-                        <tr className="text-center">
-                          <th>النطاق</th>
-                          <th>المرحلة</th>
-                          <th>عدد الإجابات الصحيحة</th>
-                          <th>إجمالي الأسئلة</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {studentProgress.stageScores && studentProgress.stageScores.length > 0 ? (
-                          studentProgress.stageScores.map((score, index) => (
-                            <tr key={index} className="text-center">
-                              <td>{score.range}</td>
-                              <td>{score.stage}</td>
-                              <td>{score.correct}</td>
-                              <td>{score.total}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={4} className="text-center text-muted">
-                              لم يتم تسجيل أي بيانات حتى الآن
-                            </td>
-                          </tr>
-                        )}
-                        <tr className="fw-bold text-center">
-                          <td colSpan={2}>الإجمالي</td>
-                          <td>{totalScore}</td>
-                          <td>{totalQuestions}</td>
-                        </tr>
-                      </tbody>
-                    </Table>
-                  </>
-                ) : (
-                  <p>لم يتم العثور على بيانات للتقدم.</p>
-                )}
-              </>
-            )}
-          </Card.Body>
-        </Card>
-      </Col>
+      {/* Content Tables */}
+      <div className="mt-5 pt-4">
+        <Row>
+          <Col md={6}>
+            {renderTable(filteredStageData1, "المهارة 1: مهارة حل الأعداد الأقل من 5")}
+          </Col>
+          <Col md={6}>
+            {renderTable(filteredStageData2, "المهارة 2: مهارة حل الأعداد الأقل من 10")}
+          </Col>
+        </Row>
+      </div>
     </div>
   )
 }

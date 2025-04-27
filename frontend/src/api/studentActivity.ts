@@ -14,16 +14,6 @@ export async function getStudentProgress(studentId: string) {
   } catch (error) {
     console.error("Error fetching student progress:", error)
 
-    // Return default progress for demo purposes or if server is unavailable
-    return {
-      currentStage: 1,
-      currentRangeMin: 1,
-      currentRangeMax: 5,
-      score: 0,
-      totalQuestions: 0,
-      stageScores: {},
-      lastUpdated: new Date().toISOString(),
-    }
   }
 }
 

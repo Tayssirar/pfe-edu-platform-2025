@@ -4,15 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import PageLayout from './layout/BgLayout';
+import { UserProvider } from "./assets/context/UserContext";
+
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <PageLayout>
-    <App />
-    </PageLayout>
+    <UserProvider>
+      <PageLayout>
+      <App />
+      </PageLayout>
+    </UserProvider>
   </React.StrictMode>
 );
 

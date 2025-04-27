@@ -134,8 +134,8 @@
 /* Video section */
 .video-section {
   position: absolute;
-  bottom: 10%;
-  right: 10%;
+  bottom: 15%;
+  right: 39%;
   z-index: 3;
 }
 
@@ -269,23 +269,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
   position: relative;
-}
-
-/* Title Bubble */
-.title-bubble {
-  background-color: #c5efff;
-  border-radius: 30px;
-  padding: 1px 25px;
-  display: inline-block;
-}
-
-.title-bubble h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+  z-index: 4;
 }
 
 /* Navigation Buttons */
@@ -293,7 +278,6 @@
   display: flex;
   gap: 15px;
   justify-content: center;
-  flex-grow: 1;
 }
 
 .nav-button {
@@ -301,11 +285,13 @@
   color: #495057;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 5px 20px;
   font-size: 1.2rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.3s ease;
+  cursor: pointer;
+  
 }
 
 .nav-button:hover {
@@ -322,6 +308,10 @@
 .user-profile {
   display: flex;
   align-items: center;
+  cursor: pointer;
+  margin-left: 10px;
+  margin-top: 20px;
+
 }
 
 .user-avatar {
@@ -330,6 +320,9 @@
   border-radius: 50%;
   overflow: hidden;
   background-color: #e9ecef;
+  transform: scale(2); /* 👈 makes it appear larger */
+  transform-origin: center; /* keeps it centered */
+  position: relative; /* Needed for dropdown */
 }
 
 .user-avatar img {
@@ -338,14 +331,29 @@
   object-fit: cover;
 }
 
-/* Dashboard Welcome Section */
-.page-welcome {
-  margin-bottom: 25px;
+/* Ensure dropdown is positioned correctly */
+.logout-popover {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  transition: opacity 0.2s ease;
+}
+.logout-button {
+  all: unset; /* removes all default styles */
+  cursor: pointer;
+  font-size: 14px;
+  color: #000; /* or inherit */
+  padding: 4px 8px;
 }
 
-.page-welcome h2 {
-  font-size: 1.8rem;
-  margin-bottom: 5px;
+.logout-button:hover {
+  text-decoration: underline;
 }
 
 /* dashboard Stats Cards */
@@ -681,4 +689,19 @@
 
 .modal .modal-content {
   text-align: center;
+}
+
+
+/* concrete stage option hover */
+.concrete-stage {
+  right: 50%;
+
+}
+
+
+.option-card.hoverable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  background-color: #e0e0e0; 
+  transition: all 0.2s ease-in-out;
 }

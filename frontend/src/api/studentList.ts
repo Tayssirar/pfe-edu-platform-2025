@@ -13,6 +13,13 @@ export const getStudentsByTeacher = async (teacherId: string) => {
   }
 };
 
+export const getUnlinkedStudentsBySchool = async (school: string) => {
+  const response = await fetch(`${API_URL}/unlinked/${school}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch unlinked students");
+  }
+  return response.json();
+};
 
 // Link existing student to teacher
 export const linkStudent = async (teacherId: string, uniqueIdentifier: string) => {

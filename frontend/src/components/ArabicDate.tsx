@@ -4,9 +4,10 @@ const ArabicDate: React.FC = () => {
   const getArabicDate = () => {
     const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
     const months = [
-      "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", 
-      "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+      "جانفي", "فيفري", "مارس", "أفريل", "ماي", "جوان", 
+      "جويلية", "أوت", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
     ];
+    
 
     const today = new Date();
     const dayName = days[today.getDay()];
@@ -17,7 +18,7 @@ const ArabicDate: React.FC = () => {
     return `${dayName}، ${day} ${monthName} ${year}`;
   };
 
-  return <p className="text-muted">{getArabicDate()}</p>;
+  return <span className="text-muted">{getArabicDate()}</span>;
 };
 
 export default ArabicDate;

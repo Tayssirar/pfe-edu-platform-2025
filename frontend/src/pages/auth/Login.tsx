@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { login } from "../../api/auth";
+import { useUser } from "../../assets/context/UserContext";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setUser } = useUser(); // Use the context to update the user
 
-  // Get role from URL query parameters
   const queryParams = new URLSearchParams(location.search);
   const roleFromQuery = queryParams.get("role");
 
@@ -17,8 +18,8 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      let payload: any = { role }; // Ensure role is always passed
-  
+      let payload: any = { role };
+
       if (role === "student" && uniqueIdentifier) {
         payload = { ...payload, uniqueIdentifier };
       } else if (role === "teacher" && uniqueIdentifier && password) {
@@ -29,18 +30,15 @@ const LoginPage: React.FC = () => {
         alert("يرجى ملء الحقول المطلوبة");
         return;
       }
-  
-      console.log("🚀 ~ Sending login payload:", payload); // Debugging log
-  
+
       const response = await login(payload);
-  
-      // Store role and user data in localStorage
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("userName", response.data.user.name);
-  
+
+      // Update the user context
+      const userData = response.data.user;
+      setUser({ ...userData, role });
+
       // Navigate to the correct dashboard
-      navigate(`/dashboard/${response.data.user.id}/${role}`);
+      navigate(`/dashboard/${userData.id}/${role}`);
     } catch (error: any) {
       console.error("🚀 ~ handleLogin ~ error:", error);
       alert(error.response ? error.response.data.message : "An error occurred");

@@ -2,35 +2,22 @@ import type React from "react"
 import { useState } from "react"
 import { Alert } from "react-bootstrap"
 import AvatarSelectionModal from "../components/AvatarSelector"
-import { updateProfilePhoto } from "../api/auth"
-import { useLocation } from "react-router-dom"
-import default_avatar from "../assets/avatars/default.jpg"
-const DEFAULT_AVATAR = default_avatar; // Default avatar
+import { updateAvatar } from "../api/auth"
+import { Avatar } from "../assets/data/Avatar"
+import { useUser } from "../assets/context/UserContext"
 
 const ProfilePage: React.FC = () => {
+  const { user, refreshUserData } = useUser(); // Use the context
   const [showModal, setShowModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const location = useLocation()
 
-  // Get user from location state or localStorage
-  const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null")
-
-  // Set the profile photo to default avatar if not provided
-  const [profilePhoto, setProfilePhoto] = useState<string>(user.profilePhoto || DEFAULT_AVATAR);
-  console.log("🚀 ~ user.profilePhoto:", user.profilePhoto)
-
-  const handleAvatarSelection = async (avatarUrl: string) => {
+  const handleAvatarSelection = async (avatar: Avatar) => {
     try {
-      await updateProfilePhoto(user.id, user.role, avatarUrl);
-      
-      // Update user object in localStorage
-      const updatedUser = { ...user, profilePhoto: avatarUrl };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      // Update the profile photo state
-      setProfilePhoto(avatarUrl);
+      console.log("Selected avatar:", avatar); // Debug log
+      await updateAvatar(user!.id, user!.role, avatar); // Pass the selected avatar object
+      await refreshUserData(); // Refresh user data after updating the avatar
     } catch (err) {
-      console.error("Error updating profile photo:", err);
+      console.error("Error updating avatar:", err); // Debug log
       setError("حدث خطأ أثناء تحديث الصورة الرمزية.");
     }
   };
@@ -40,7 +27,13 @@ const ProfilePage: React.FC = () => {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <div className="profile-picture mb-4">
-        <img src={profilePhoto} alt="Profile" className="rounded-circle border" width="150" height="150" />
+        <img
+          src={user?.avatar.profile }
+          alt="Profile"
+          className="rounded-circle border"
+          width="150"
+          height="150"
+        />
       </div>
 
       <button className="btn btn-secondary" onClick={() => setShowModal(true)}>
@@ -66,7 +59,7 @@ const ProfilePage: React.FC = () => {
 
       {showModal && (
         <AvatarSelectionModal 
-          setProfilePhoto={handleAvatarSelection} 
+          setAvatar={handleAvatarSelection} 
           onClose={() => setShowModal(false)} 
         />
       )}

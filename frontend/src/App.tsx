@@ -56,8 +56,8 @@ const App = () => {
           path="/dashboard/:userId/parent"
           element={
             <PageLayout>
-              <ParentDashboard />
-            </PageLayout>
+              <KidPerformance/>
+              </PageLayout>
           }
         />
 

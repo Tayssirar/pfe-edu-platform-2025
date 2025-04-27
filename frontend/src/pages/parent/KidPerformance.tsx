@@ -74,8 +74,7 @@ function KidPerformance() {
           <div key={child._id}>
             <StudentAchievements studentId={child._id} />
           <Col lg={2} className="align-items-center text-center position-absolute" 
-          style={{ top: "30%", right: "0%", background: "white" }}>
-            <h4>الملاحظات السابقة</h4>
+          style={{ top: "10%", right: "12%", background: "white" }}>
               {fetchingFeedback ? (
                 <Spinner animation="border" />
               ) : feedbackHistory.length > 0 ? (

@@ -3,6 +3,7 @@ import { useLocation} from "react-router-dom";
 import { Col } from "react-bootstrap";
 import StudentAchievements from "../../components/activity/Achievements";
 import Feedback from "../../components/Feedback"; // Import the new Feedback component
+import { Row } from "react-bootstrap";
 
 const StudentAchievementsPage: React.FC<{}> = () => {
   const location = useLocation();
@@ -11,24 +12,16 @@ const StudentAchievementsPage: React.FC<{}> = () => {
   if (!student) return <p>لا توجد بيانات متاحة لهذا التلميذ.</p>;
 
   return (
-    <div className="container mt-4">
-      <Col style={{ background: "white" }} lg={2}>
-        <h2>إنجازات {student.childName}</h2>
-        <img src={student.profilePhoto} alt="Student" style={{ width: "100px", borderRadius: "50%" }} />
-        <p><strong>المعرف الفريد:</strong> {student.uniqueIdentifier}</p>
-        <p><strong>اسم الطفل:</strong> {student.childName}</p>
-        <p><strong>اسم الوالد:</strong> {student.parentName}</p>
-        <p><strong>المدرسة:</strong> {student.school}</p>
-      </Col>
-
+    <Row className="">
       {/* Achievements Section */}
-      <StudentAchievements studentId={student._id} />
-
+      <Col lg={10} className="mx-auto text-center">
+        <StudentAchievements studentId={student._id} />
+      </Col>
       {/* Feedback Section */}
-      <Col lg={2} className="align-items-center text-center position-absolute" style={{ top: "23%", left: "1%", background: "white" }}>
+      <Col lg={2} className="align-items-center text-center position-absolute" style={{ top: "20%", left: "-6%", background: "white" }}>
         <Feedback teacherId={teacherId} studentId={student._id} />
       </Col>
-    </div>
+    </Row>
   );
 };
 

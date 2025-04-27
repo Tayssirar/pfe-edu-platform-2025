@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Form, Modal } from "react-bootstrap";
-import { getStudentsByTeacher, linkStudent, deleteStudent, searchStudent } from "../../api/studentList";
+import { getStudentsByTeacher, linkStudent, deleteStudent, searchStudent, getUnlinkedStudentsBySchool} from "../../api/studentList";
 import { useLocation, useNavigate } from "react-router-dom";
 import StudentAchievements from "../../components/activity/Achievements"; // import the achievements component
 
 type Student = {
-  profilePhoto: string;
   uniqueIdentifier: string;
   childName: string;
   parentName: string;
   school: string;
+  avatar: {
+    profile: string;
+  };
 };
 
 const StudentsList: React.FC = () => {
@@ -24,6 +26,7 @@ const StudentsList: React.FC = () => {
   
   const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null");
   const teacherId = user.id;
+  const teacherSchool = user.school;
 
   const fetchStudents = async (teacherId: string) => {
     try {
@@ -39,9 +42,29 @@ const StudentsList: React.FC = () => {
     }
   };
 
+  const autoLinkStudents = async (teacherSchool: string, teacherId: string) => {
+    try {
+      const unlinkedStudents = await getUnlinkedStudentsBySchool(teacherSchool);
+  
+      for (const student of unlinkedStudents) {
+        
+        await linkStudent(teacherId, student.uniqueIdentifier);
+      }
+  
+      // After linking, fetch again
+      fetchStudents(teacherId);
+    } catch (error) {
+      console.error("Error auto-linking students:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchStudents(teacherId);
-  }, [teacherId]); // Run when teacherId changes
+    if (teacherId && teacherSchool) {
+      fetchStudents(teacherId);
+      autoLinkStudents(teacherSchool, teacherId);
+    }
+  }, [teacherId]);
+  
 
   const handleDelete = async (uniqueIdentifier: string) => {
     try {
@@ -92,7 +115,7 @@ const StudentsList: React.FC = () => {
         <tbody>
           {students.map((student) => (
             <tr key={student.uniqueIdentifier}>
-              <td><img src={student.profilePhoto} alt="Student" style={{ width: "30px", height: "30px" }} /></td>
+              <td><img src={student.avatar?.profile} alt="Student" style={{ width: "30px", height: "30px" }} /></td>
               <td>{student.uniqueIdentifier}</td>
               <td>{student.childName}</td>
               <td>{student.parentName}</td>
@@ -178,7 +201,7 @@ const StudentsList: React.FC = () => {
                         <td>{student.uniqueIdentifier}</td>
                         <td>{student.parentName}</td>
                         <td>{student.childName}</td>
-                        <td><img src={student.profilePhoto} alt="Student" style={{ width: "30px", height: "30px" }} /></td>
+                        <td><img src={student.avatar?.profile} alt="" style={{ width: "30px", height: "30px" }} /></td>
                       </tr>
                     ))}
                   </tbody>

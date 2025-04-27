@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ArabicDate from "../components/ArabicDate";
+import { useUser } from "../assets/context/UserContext";
 
 const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [showLogout, setShowLogout] = useState(false);
@@ -8,28 +9,36 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Retrieve user info from localStorage (replace with state management if needed)
-  const user = JSON.parse(localStorage.getItem("user") || "null");
-  console.log("🚀 ~ user:", user);
+  const { user, refreshUserData } = useUser(); // Use the context
+  useEffect(() => {
+    const fetchUserData = async () => {
+      await refreshUserData(); // Refresh user data after updating the avatar
+    
+    };
+    fetchUserData();
+  }, []);
+
 
   const userName = user?.name || "";
   const userRole = user?.role || "";
-  const Role = user?.role === "teacher" ? "المعلم" : user?.role === "parent" ? "ولي الأمر" : user?.role === "student" ? "التلميذ" : "";
 
   // Define navigation items based on user role
   const navOptions: Record<string, { label: string; path: string; state?: any }[]> = {
     teacher: [
-      { label: "الملف الشخصي", path: `/teacher/${user.id}/profile`, state: { user }  },
-      { label: "الدروس", path: `/teacher/${user.id}/lessons`, state: { user } },
-      { label: "الطلاب", path: `/teacher/${user.id}/students`, state: { user }  }, 
+      { label: "الصفحة الرئيسية", path: `/dashboard/${user?.id}/${userRole}`, state: { user }  },
+      { label: "الملف الشخصي", path: `/teacher/${user?.id}/profile`, state: { user }  },
+      { label: "الدروس", path: `/teacher/${user?.id}/lessons`, state: { user } },
+      { label: "الطلاب", path: `/teacher/${user?.id}/students`, state: { user }  }, 
     ],
     parent: [
-      { label: "الملف الشخصي", path: `/parent/${user.id}/profile`, state: { user } },
-      { label: "أداء الطفل", path: `/parent/${user.id}/kidPerformance`, state: { user } },
+
+      { label: "الملف الشخصي", path: `/parent/${user?.id}/profile`, state: { user } },
+      { label: "أداء الطفل", path: `/dashboard/${user?.id}/${userRole}`, state: { user } },
     ],
     student: [
-      { label: "الملف الشخصي", path: `/student/${user.id}/profile`, state: { user } },
-      { label: "الدروس", path: `/student/${user.id}/lessons`, state: { user } },
+      { label: "الصفحة الرئيسية", path: `/dashboard/${user?.id}/${userRole}`, state: { user }  },
+      { label: "الملف الشخصي", path: `/student/${user?.id}/profile`, state: { user } },
+      { label: "الدروس", path: `/student/${user?.id}/lessons`, state: { user } },
     ],
   };
 
@@ -50,22 +59,13 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, []);
 
   return (
-    <div className="page-container" dir="rtl">
+    <div className="page-container">
       <div className="page-content">
         {/* Header with title */}
         <div className="page-header">
-          <div className="dropdown" ref={dropdownRef}>
-            <div
-              className="title-bubble dropdown-toggle"
-              onClick={() => setShowLogout(!showLogout)}
-            >
-              <Link to={`/dashboard/${user.id}/${userRole}`}><h1>فضاء {Role} </h1></Link>
-            </div>
-            {showLogout && (
-              <div className="dropdown-menu show">
-                <button className="dropdown-item" onClick={handleLogout}>تسجيل الخروج</button>
-              </div>
-            )}
+          <div className="page-welcome">
+              <h3>مرحباً {userName}!</h3>
+              <ArabicDate />
           </div>
 
           {/* Navigation Menu */}
@@ -78,21 +78,21 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
 
           {/* User Profile */}
-          <div className="user-profile">
-            <div className="user-avatar">
-              <img src={user.profilePhoto} alt="" />
+          <div className="user-profile" ref={dropdownRef}>
+            <div className="user-avatar" onClick={() => setShowLogout(!showLogout)}>
+              <img src={user?.avatar.profile} alt="" />
             </div>
+            {showLogout && (
+              <div className="logout-popover">
+                <button  className="logout-button" onClick={handleLogout}>تسجيل الخروج</button>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="page-main">
-          <div className="page-welcome">
-            <h2>مرحباً {userName}!</h2>
-            <ArabicDate />
-          </div>
-          {children}
+
         </div>
+        {children}
+
       </div>
     </div>
   );
