@@ -112,7 +112,6 @@ export const getUnlinkedStudentsBySchool = async (req: Request, res: Response) =
       teacherId: { $in: [null, undefined] } // Match unlinked students (teacherId is either null or does not exist)
     });
 
-    console.log("🚀 ~ getUnlinkedStudentsBySchool ~ students:", students);
     return res.json(students);
   } catch (error) {
     console.error("Error fetching unlinked students:", error);
