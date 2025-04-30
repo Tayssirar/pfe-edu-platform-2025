@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
       case "teacher":
         return "معلم";
       case "parent":
-        return "ولي أمر";
+        return "ولي";
       default:
         return roleValue;
     }

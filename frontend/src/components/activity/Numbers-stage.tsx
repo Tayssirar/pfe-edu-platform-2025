@@ -189,7 +189,7 @@ export default function NumbersStage({
         <Card.Body className="p-4">
           <h4 className="text-end mb-2">
             {isTrainingStage
-              ? `مرحلة التدريب: السؤال ${currentActivity} من ${totalActivities}`
+              ? `مرجمعة التدريب: السؤال ${currentActivity} من ${totalActivities}`
               : `المرحلة الرئيسية: السؤال ${currentActivity} من ${totalActivities}`}
           </h4>
 

@@ -49,7 +49,7 @@ const ProfilePage: React.FC = () => {
             <strong>المدرسة:</strong> {user.school || "غير محدد"}
           </h3>
           <h3>
-            <strong>الدور:</strong> {user.role === "teacher" ? "معلم" : user.role === "student" ? "تلميذ" : "ولي أمر"}
+            <strong>الوظيفة:</strong> {user.role === "teacher" ? "معلم" : user.role === "student" ? "تلميذ" : "ولي"}
           </h3>
           <h3>
             <strong>المعرف:</strong> {user.uniqueIdentifier || "غير محدد"}

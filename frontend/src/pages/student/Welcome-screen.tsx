@@ -39,10 +39,10 @@ const WelcomeScreen: React.FC = () => {
 
           // Final stage + final range → completed everything
           if (stage === 3 && rangeId === 2 && activity >= 80) {
-            setMessage("لقد أكملت جميع المراحل! 🎉 أحسنت العمل 👏.")
+            setMessage("لقد أكملت جميع المراجمع! 🎉 أحسنت العمل 👏.")
             setCharacter(avatar.cheerful)
           } else {
-            setMessage(`مرحبًا بك مرة أخرى! أنت الآن في المرحلة ${stage} من النطاق ${rangeId}. لنُكمل التعلُّم!`)
+            setMessage(` مرحبًا بك مرة أخرى! أنت الآن في المرحلة الأولى ${stage}  ${rangeId}. لنُكمل التعلُّم!`)
             setCharacter(avatar.welcome)
           }
         }

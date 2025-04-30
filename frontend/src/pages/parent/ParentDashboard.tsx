@@ -69,7 +69,7 @@ function ParentDashboard() {
       <div className="stat-content">
         <h5>تعلم الجمع من 1 إلى 50</h5>
         <p>
-          يمر الطفل بثلاث مراحل في كل نطاق رقمي، حيث يتعلم الجمع بطريقة تفاعلية من خلال ألعاب ممتعة وفيديوهات تعليمية.
+          يمر الطفل بثلاث مراجمع في كل نطاق رقمي، حيث يتعلم الجمع بطريقة تفاعلية من خلال ألعاب ممتعة وفيديوهات تعليمية.
         </p>
         <ul className="text-start ps-3">
           <li>🔹 المرحلة 1: فهم الأعداد والمفاهيم الأساسية</li>
@@ -87,7 +87,7 @@ function ParentDashboard() {
         <i className="bi bi-clipboard-check" style={{ fontSize: "20px" }}></i>
       </div>
       <div className="stat-content">
-        <h5>           النطاق: {child.progress.currentRangeMin} - {child.progress.currentRangeMax}
+        <h5>           {child.progress.currentRangeMin} - {child.progress.currentRangeMax}
         </h5>
         <p className="mb-1"> المرحلة: {child.progress.currentStage}
         </p>
@@ -102,7 +102,7 @@ function ParentDashboard() {
 
         ))
       ) : (
-        <p>لا توجد أطفال</p>
+        <p>لا يوجد أطفال</p>
       )}
     </div>
   );

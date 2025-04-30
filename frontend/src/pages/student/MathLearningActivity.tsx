@@ -240,7 +240,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
   
     // Show success modal instead of immediately transitioning
     setModalTitle("أحسنت!")
-    setModalMessage(`حصلت على نجمة جديدة \nإجمالي نجومك في المرحلة ${currentStage} \n
+    setModalMessage(`حصلت على نجمة جديدة \nمجموع نجومك في المرحلة ${currentStage} \n
        ${generateStars(correctAnswer + 1)}`)
     setModalVariant("success")
     setShowModal(true)
@@ -298,7 +298,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
   
     // Show failure modal instead of immediately transitioning
     setModalTitle("عذرًا!")
-    setModalMessage(`إجابة خاطئة \nلم تحصل على نجمة جديدة \nإجمالي نجومك في المرحلة ${currentStage}\n ${generateStars(correctAnswer)}`)
+    setModalMessage(`إجابة خاطئة \nلم تحصل على نجمة جديدة \nمجموع نجومك في المرحلة ${currentStage}\n ${generateStars(correctAnswer)}`)
     setModalVariant("danger")
     setShowModal(true)
   }
@@ -338,7 +338,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
       } else {
         // Move to next range (only if currently at range 1)
         setCurrentRangeId((prev) => prev + 1)
-        setCurrentRange({ min: currentRange.max + 1, max: currentRange.max + 5 })
+        setCurrentRange({ min: 1, max: currentRange.max + 5 })
         setCurrentStage(1)
         setCorrectAnswer(0)
         setWrongAnswer(0)
@@ -379,7 +379,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
           />
         )
       default:
-        return <p>🎉 كل المراحل انتهت!</p>
+        return <p>🎉 كل المراجمع انتهت!</p>
     }
   }
 

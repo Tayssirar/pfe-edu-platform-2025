@@ -86,7 +86,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="auth-container register-position">
       <h3 className="auth-header">
-        إنشاء حساب جديد {roleFromQuery && (roleFromQuery === "teacher" ? " (معلم)" : " (ولي أمر)")}
+        إنشاء حساب جديد {roleFromQuery && (roleFromQuery === "teacher" ? " (معلم)" : " (ولي)")}
       </h3>
 
       <form onSubmit={(e) => e.preventDefault()}>

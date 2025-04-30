@@ -15,9 +15,9 @@ export default function ProgressTracker({
 
   let competenceText = ""
   if (currentRange.max <= 5) {
-    competenceText = "المهارة 1: مهارة حل الأعداد الأقل من 5"
+    competenceText = "المهارة 1: مهارة جمع الأعداد الأقل من 5"
   } else if (currentRange.max <= 10) {
-    competenceText = "المهارة 2: مهارة حل الأعداد الأقل من 10"
+    competenceText = "المهارة 2: مهارة جمع الأعداد الأقل من 10"
   }
 
   const filledStars = Math.round((percentage / 100) * 5)
