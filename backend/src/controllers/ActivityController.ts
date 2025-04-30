@@ -101,7 +101,7 @@ export const saveStudentProgress = async (req: Request, res: Response) => {
       }
     })
 
-    // Update the rest of the progress data
+    // Update the rest of the progress 
     student.progress.currentStage = progressData.currentStage
     student.progress.currentRangeId = progressData.currentRangeId
     student.progress.score = progressData.score
