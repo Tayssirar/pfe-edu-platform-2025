@@ -3,6 +3,7 @@ interface ProgressTrackerProps {
   totalActivities: number
   currentStage: number
   currentRange: { min: number; max: number }
+  correctAnswer: number
 }
 
 export default function ProgressTracker({
@@ -10,8 +11,8 @@ export default function ProgressTracker({
   totalActivities,
   currentStage,
   currentRange,
+  correctAnswer,
 }: ProgressTrackerProps) {
-  const percentage = totalActivities && totalActivities > 0 ? Math.round((score / totalActivities) * 100) : 0
 
   let competenceText = ""
   if (currentRange.max <= 5) {
@@ -20,7 +21,7 @@ export default function ProgressTracker({
     competenceText = "المهارة 2: مهارة جمع الأعداد الأقل من 10"
   }
 
-  const filledStars = Math.round((percentage / 100) * 5)
+  const filledStars = Math.min(correctAnswer, 5) // Cap at 5 stars
 
   const baseCircleStyle = {
     width: "120px",
@@ -86,8 +87,19 @@ export default function ProgressTracker({
           {/* Score (Stars) */}
           <div style={{ ...baseCircleStyle, backgroundColor: "#f94144" }}>
             <div>النتيجة</div>
-            <div style={{ color: "#ffd700", fontSize: "1.2rem" }}>
-              {"★".repeat(filledStars)}{"☆".repeat(5 - filledStars)}
+            <div
+              style={{
+                color: "#ffd700",
+                fontSize: "1.2rem",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >              
+            <div>{"★".repeat(Math.min(filledStars, 5)) + "☆".repeat(5 - Math.min(filledStars, 5))}</div>
+            <div>
+              {"★".repeat(Math.max(filledStars - 5, 0)) + "☆".repeat(5 - Math.max(filledStars - 5, 0))}
+            </div>
             </div>
           </div>
         </div>

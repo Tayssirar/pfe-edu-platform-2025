@@ -125,7 +125,7 @@ export default function StudentAchievements({ studentId }: StudentProgressProps)
       : "المهارة الحالية: مهارة 2 جمع الأعداد الأقل من 10"
 
   const getRangeString = (rangeId: number) => {
-    const rangeMin = (rangeId - 1) * 5 + 1
+    const rangeMin = 1
     const rangeMax = rangeId * 5
     return `${rangeMin}-${rangeMax}`
   }

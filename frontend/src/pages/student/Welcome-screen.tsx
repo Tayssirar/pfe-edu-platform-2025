@@ -19,6 +19,7 @@ const WelcomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [studentProgress, setStudentProgress] = useState<any>(null)
   const [activityStarted, setActivityStarted] = useState(false)
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false) // New state for button disable
 
   useEffect(() => {
     const fetchProgressAndId = async () => {
@@ -38,11 +39,12 @@ const WelcomeScreen: React.FC = () => {
           const activity = progress.totalActivities
 
           // Final stage + final range → completed everything
-          if (stage === 3 && rangeId === 2 && activity >= 80) {
-            setMessage("لقد أكملت جميع المراجمع! 🎉 أحسنت العمل 👏.")
+          if (stage === 3 && rangeId === 2 && activity >= 60) {
+            setMessage("لقد أكملت جميع المراحل! 🎉 أحسنت العمل 👏.")
             setCharacter(avatar.cheerful)
+            setIsButtonDisabled(true) // Disable the button
           } else {
-            setMessage(` مرحبًا بك مرة أخرى! أنت الآن في المرحلة الأولى ${stage}  ${rangeId}. لنُكمل التعلُّم!`)
+            setMessage(`مرحبًا بك مرة أخرى! أنت الآن في المرحلة ${stage} من المهارة ${rangeId}. لنُكمل التعلُّم!`)
             setCharacter(avatar.welcome)
           }
         }
@@ -134,6 +136,7 @@ const WelcomeScreen: React.FC = () => {
             whileTap={{ scale: 0.95 }}
             onClick={handleStart}
             className="btn btn-primary px-5 py-3 fw-bold"
+            disabled={isButtonDisabled} // Disable the button based on state
           >
             هيا نبدأ!
           </motion.button>

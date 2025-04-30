@@ -14,53 +14,53 @@ export const fingersStageData: StageDataMap = {
 
     {
       //1+2
-      id: 1,
+      id: 0,
       videoUrl: "https://youtu.be/_D2hcs73Oy4?si=Dtg0TNHEeGYXZP1r",
     },
     {
       //2+3
-      id: 2,
+      id: 1,
       videoUrl: "https://youtu.be/nyuhNMf5_w4?si=euF0ZdcURWYiBRPF",
       
     },
     {
       //3+3
-      id: 3,
+      id: 2,
       videoUrl: "https://youtu.be/N9nsHDEPsdE?si=fYfnvpoFRKn0yx3B",
     },
     {
       //4+2
-      id: 4,
+      id: 3,
       videoUrl: "https://youtu.be/fRkwRlzEV6w?si=eab1lKyC5fF6tN-D",
     },
     {
       //4+3
-      id: 5,
+      id: 4,
       videoUrl: "https://youtu.be/HMb0w-MMptg?si=-TPStTagRwrb8n5T",
     },
     {
       //4+4
-      id: 6,
+      id: 5,
       videoUrl: "https://youtu.be/29fnhmMQ9ZA?si=6KFsS4pq_2RzJRVd",
     },
     {
       //5+2
-      id: 7,
+      id: 6,
       videoUrl: "https://youtu.be/lPoUJsqMreE?si=JufGNbF_dXyI-Irx",
     },
     {
       //5+3
-      id: 8,
+      id: 7,
       videoUrl: "https://youtu.be/k90kBgIMZA4?si=3--TZLRrKNhkRZ6N",
     },
     {
       //5+4
-      id: 9,
+      id: 8,
       videoUrl: "https://youtu.be/tlbmTqx2y3o?si=wABeKVYQZzne0sre",
     },
     {
       //5+5
-      id: 10,
+      id: 9,
       videoUrl: "https://youtu.be/y6d2evK5BQA?si=xyEp5MrT6pZjA-2a",
     },
 

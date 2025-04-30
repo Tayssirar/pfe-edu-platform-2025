@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Container, Button, Modal } from "react-bootstrap"
 import ProgressTracker from "../../components/activity/Progress-tracker"
 import ConcreteStage from "../../components/activity/Concrete-stage"
@@ -106,6 +106,19 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
   const [modalVariant, setModalVariant] = useState<"success" | "warning" | "danger">("success")
   const [correctAnswer, setCorrectAnswer] = useState(0)
   const [wrongAnswer, setWrongAnswer] = useState(0)
+  const [stageChanging, setStageChanging] = useState(false) // Track stage transitions
+  // Use refs to track the latest state values
+  const currentStageRef = useRef(currentStage)
+  const currentRangeIdRef = useRef(currentRangeId)
+
+  // Update refs when state changes
+  useEffect(() => {
+    currentStageRef.current = currentStage
+  }, [currentStage])
+
+  useEffect(() => {
+    currentRangeIdRef.current = currentRangeId
+  }, [currentRangeId])
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -145,10 +158,10 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
     fetchProgress()
   }, [studentId])
 
-  const saveProgress = async (updatedRangeData: RangeData[]) => {
-    const progressData = {
-      currentStage,
-      currentRangeId,
+  const saveProgress = async (updatedRangeData: RangeData[], customProgressData?: any) => {
+    const progressData = customProgressData || {
+      currentStage: currentStageRef.current,
+      currentRangeId: currentRangeIdRef.current,
       score,
       totalActivities,
       range: updatedRangeData,
@@ -186,11 +199,11 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
   const generateStars = (count: number) => {
     return "⭐".repeat(count)
   }
-  
+
   const handleCorrectAnswer = () => {
     const updatedData = [...rangeData]
     let currentRangeData = updatedData.find((r) => r.RangeId === currentRangeId)
-  
+
     if (!currentRangeData) {
       currentRangeData = {
         RangeId: currentRangeId,
@@ -209,7 +222,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
       updatedData.push(currentRangeData)
     } else {
       const currentStageData = currentRangeData.stages?.find((s) => s.stageId === currentStage)
-  
+
       if (!currentStageData) {
         if (!currentRangeData.stages) {
           currentRangeData.stages = []
@@ -227,17 +240,32 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
         currentStageData.date = new Date()
       }
     }
-  
-    setCorrectAnswer((prev) => prev + 1)
-    setStageTotalActivity((prev) => prev + 1)
-    setScore((prev) => prev + 1)
-    setTotalActivities((prev) => prev + 1)
-  
-    saveProgress(updatedData)
-  
+
+    // Update local state
+    const newCorrectAnswer = correctAnswer + 1
+    const newStageTotalActivity = stageTotalActivity + 1
+    const newScore = score + 1
+    const newTotalActivities = totalActivities + 1
+
+    setCorrectAnswer(newCorrectAnswer)
+    setStageTotalActivity(newStageTotalActivity)
+    setScore(newScore)
+    setTotalActivities(newTotalActivities)
+    // Pass the updated values directly to saveProgress
+    const progressData = {
+      currentStage: currentStageRef.current,
+      currentRangeId: currentRangeIdRef.current,
+      score: newScore,
+      totalActivities: newTotalActivities,
+      range: updatedData,
+      lastUpdated: new Date().toISOString(),
+    }
+
+    saveProgress(updatedData, progressData)
+
     new Audio(successSound).play().catch(console.error)
     confetti({ particleCount: 100, spread: 120, origin: { x: 0.5, y: 0.5 } })
-  
+
     // Show success modal instead of immediately transitioning
     setModalTitle("أحسنت!")
     setModalMessage(`حصلت على نجمة جديدة \nمجموع نجومك في المرحلة ${currentStage} \n
@@ -245,12 +273,12 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
     setModalVariant("success")
     setShowModal(true)
   }
-  
+
 
   const handleWrongAnswer = () => {
     const updatedData = [...rangeData]
     let currentRangeData = updatedData.find((r) => r.RangeId === currentRangeId)
-  
+
     if (!currentRangeData) {
       currentRangeData = {
         RangeId: currentRangeId,
@@ -269,7 +297,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
       updatedData.push(currentRangeData)
     } else {
       const currentStageData = currentRangeData.stages?.find((s) => s.stageId === currentStage)
-  
+
       if (!currentStageData) {
         if (!currentRangeData.stages) {
           currentRangeData.stages = []
@@ -287,28 +315,60 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
         currentStageData.date = new Date()
       }
     }
-  
-    setWrongAnswer((prev) => prev + 1)
-    setStageTotalActivity((prev) => prev + 1)
-    setTotalActivities((prev) => prev + 1)
-  
-    saveProgress(updatedData)
-  
+
+    // Update local state
+    const newWrongAnswer = wrongAnswer + 1
+    const newStageTotalActivity = stageTotalActivity + 1
+    const newTotalActivities = totalActivities + 1
+
+    setWrongAnswer(newWrongAnswer)
+    setStageTotalActivity(newStageTotalActivity)
+    setTotalActivities(newTotalActivities)
+
+    // Pass the updated values directly to saveProgress
+    const progressData = {
+      currentStage: currentStageRef.current,
+      currentRangeId: currentRangeIdRef.current,
+      score: score,
+      totalActivities: newTotalActivities,
+      range: updatedData,
+      lastUpdated: new Date().toISOString(),
+    }
+
     new Audio(failSound).play().catch(console.error)
-  
+
     // Show failure modal instead of immediately transitioning
     setModalTitle("عذرًا!")
     setModalMessage(`إجابة خاطئة \nلم تحصل على نجمة جديدة \nمجموع نجومك في المرحلة ${currentStage}\n ${generateStars(correctAnswer)}`)
     setModalVariant("danger")
     setShowModal(true)
   }
-  
+
 
   const handleStageComplete = async (correct: number, total: number) => {
+    // Prevent multiple stage completions
+    if (stageChanging) {
+      console.log("Stage already changing, ignoring duplicate completion")
+      return
+    }
+
+    console.log(
+      "Stage complete called with stage:",
+      currentStage,
+      "range:",
+      currentRangeId,
+      "correct:",
+      correct,
+      "total:",
+      total,
+    )
+
+    // Set flag to prevent multiple transitions
+    setStageChanging(true)
     // Save the stage completion
     const updatedData = [...rangeData]
     let currentRangeData = updatedData.find((r) => r.RangeId === currentRangeId)
-  
+
     if (currentRangeData) {
       const currentStageData = currentRangeData.stages.find((s) => s.stageId === currentStage)
       if (currentStageData) {
@@ -317,28 +377,31 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
         currentStageData.date = new Date()
       }
     }
-  
+
     await saveProgress(updatedData)
-  
+
     if (currentStage < 3) {
-      setCurrentStage((prev) => prev + 1)
+      setCurrentStage((prev) => {
+        currentStageRef.current = prev + 1
+        return prev + 1
+      })
       setCorrectAnswer(0)
       setWrongAnswer(0)
       setStageTotalActivity(0)
       setCharacter(avatar.cheerful)
     } else {
       // Finished all stages in current range
-      if (currentRangeId === 2) {
+      if (currentRangeId === 2 && currentStage === 3) {
         // If finished range 2 -> show message and don't move anymore
         setModalTitle("مبروك!")
         setModalMessage("لقد أكملت جميع الأنشطة! أحسنت!")
         setModalVariant("success")
         setCharacter(avatar.cheerful)
         setShowModal(true)
-      } else {
+      } else if (currentRangeId === 1) {
         // Move to next range (only if currently at range 1)
         setCurrentRangeId((prev) => prev + 1)
-        setCurrentRange({ min: 1, max: currentRange.max + 5 })
+        setCurrentRange({ min: 1, max: 10 })
         setCurrentStage(1)
         setCorrectAnswer(0)
         setWrongAnswer(0)
@@ -346,8 +409,12 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
         setCharacter(avatar.cheerful)
       }
     }
+    // Reset stage changing flag
+    setTimeout(() => {
+      setStageChanging(false)
+    }, 1000)
   }
-  
+
 
   const renderStageComponent = () => {
     switch (currentStage) {
@@ -391,6 +458,7 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
           totalActivities={totalActivities}
           currentStage={currentStage}
           currentRange={currentRange}
+          correctAnswer={correctAnswer}
         />
 
         {renderStageComponent()}
@@ -400,8 +468,8 @@ const MathLearningActivity: React.FC<MathLearningActivityProps> = ({ avatar, stu
         <Modal.Header closeButton className={`bg-${modalVariant} text-white`}>
           <Modal.Title>{modalTitle}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ textAlign: "center", fontSize: "1.5rem" ,whiteSpace: 'pre-line' }}>
-          {modalMessage} <br/>
+        <Modal.Body style={{ textAlign: "center", fontSize: "1.5rem", whiteSpace: 'pre-line' }}>
+          {modalMessage} <br />
 
           <img src={character || "/placeholder.svg"} alt="kid character" width={90} height={90} className="img-fluid" />
         </Modal.Body>

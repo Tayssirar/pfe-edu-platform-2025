@@ -67,7 +67,7 @@ export default function NumbersStage({
       num1 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
       num2 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
       tries++
-    } while (num1 + num2 > numberRange.max && tries < 10)
+    } while ( tries === 10)
   
     setFirstNumber(num1)
     setSecondNumber(num2)
