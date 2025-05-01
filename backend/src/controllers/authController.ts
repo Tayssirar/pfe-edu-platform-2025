@@ -120,14 +120,15 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 };
 
 // Function to update profile photo
-export const updateAvatar = async (req: Request, res: Response) => {
+export const updateAvatar = async (req: Request, res: Response): Promise<void> => {
   const { userId, role } = req.params;
   const { avatar } = req.body;
 
   console.log("Updating avatar for:", { userId, role, avatar }); // Debug log
 
   if (!avatar) {
-    return res.status(400).json({ message: "الصورة الرمزية مطلوبة" });
+    res.status(400).json({ message: "الصورة الرمزية مطلوبة" });
+    return; // Ensure the function returns void
   }
 
   try {
@@ -143,17 +144,19 @@ export const updateAvatar = async (req: Request, res: Response) => {
         user = await Parent.findOneAndUpdate({ _id: userId }, { avatar }, { new: true });
         break;
       default:
-        return res.status(400).json({ message: "الدور غير صالح" });
+        res.status(400).json({ message: "الدور غير صالح" });
+        return; // Ensure the function returns void
     }
 
     if (!user) {
-      return res.status(404).json({ message: "المستخدم غير موجود" });
+      res.status(404).json({ message: "المستخدم غير موجود" });
+      return; // Ensure the function returns void
     }
 
-    res.json({ message: "تم تحديث الصورة بنجاح", avatar: user.avatar });
+    res.status(200).json({ message: "تم تحديث الصورة بنجاح", avatar: user.avatar });
   } catch (error) {
     console.error("Error updating profile photo:", error);
-    res.status(500).json({ message: "خطأ في الخادم" });
+    res.status(500).json({ message: "خطأ في الخادم", error });
   }
 };
 
