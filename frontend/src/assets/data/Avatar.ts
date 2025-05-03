@@ -8,6 +8,8 @@ import avatar2_profile from "../avatars/avatar2/profile.png";
 import avatar2_welcome from "../avatars/avatar2/welcome.png";
 import avatar2_cheerful from "../avatars/avatar2/cheerful.png";
 import avatar2_sad from "../avatars/avatar2/sad.png";
+import avatar3_profile from "../avatars/avatar3/profile.png";
+
 // Repeat for other avatars...
 
 export interface Avatar {

@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect, useRef, type KeyboardEvent } from "react"
 import { Row, Col, Card, Button } from "react-bootstrap"
 import ActivityTimer from "./ActivityTimer"
+import { numberStageData, type StageDataMap, type NumberStageData } from "../../assets/data/numberStageData"
 
 interface NumbersStageProps {
   numberRange: { min: number; max: number }
@@ -36,15 +37,34 @@ export default function NumbersStage({
 
   const totalActivities = 10
   const inputRef = useRef<HTMLInputElement>(null)
+  const getStageKey = (range: { min: number; max: number }): keyof StageDataMap => {
+    if (range.min === 1 && range.max === 5) return "range1"
+    if (range.min === 1 && range.max === 10) return "range2"
+    return "range1"
+  }
+
+  const stageKey = getStageKey(numberRange)
+  const stageData: NumberStageData[] = numberStageData[stageKey] || []
+
+  const [questionIndex, setQuestionIndex] = useState(0)
 
   useEffect(() => {
-    generateQuestion()
-    resetState()
+    if (questionIndex < stageData.length) {
+      const { first, second } = stageData[questionIndex]
+      setFirstNumber(first)
+      setSecondNumber(second)
+      setCorrectAnswer(first + second)
+    }
+  }, [questionIndex, stageData])
 
-    setTimeout(() => {
-      inputRef.current?.focus()
-    }, 500)
-  }, [numberRange])
+  const generateQuestion = () => {
+    if (questionIndex < stageData.length) {
+      const { first, second } = stageData[questionIndex]
+      setFirstNumber(first)
+      setSecondNumber(second)
+      setCorrectAnswer(first + second)
+    }
+  }
 
   const resetState = () => {
     setUserAnswer("")
@@ -59,21 +79,10 @@ export default function NumbersStage({
     }, 500)
   }
 
-  const generateQuestion = () => {
-    let num1, num2
-    let tries = 0
-  
-    do {
-      num1 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
-      num2 = Math.floor(Math.random() * (numberRange.max - numberRange.min + 1)) + numberRange.min
-      tries++
-    } while ( tries === 10)
-  
-    setFirstNumber(num1)
-    setSecondNumber(num2)
-    setCorrectAnswer(num1 + num2)
-  }
-  
+  useEffect(() => {
+
+      resetState()
+  }, [numberRange])
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -127,7 +136,7 @@ export default function NumbersStage({
             setCurrentActivity(1)
             setCorrectAnswers(0)
             setTotalAnswers(0)
-            generateQuestion()
+            setQuestionIndex(10)
             resetState()
           } else {
             // Real stage finished -> complete
@@ -140,8 +149,11 @@ export default function NumbersStage({
 
   const nextQuestion = () => {
     setCurrentActivity((prev) => prev + 1)
-    generateQuestion()
-    resetState()
+    setQuestionIndex((prev) => {
+      const newIndex = prev + 1
+      return newIndex
+    })
+    resetState() 
   }
 
   const handleTimeExpired = () => {
@@ -166,7 +178,6 @@ export default function NumbersStage({
               setCurrentActivity(1)
               setCorrectAnswers(0)
               setTotalAnswers(0)
-              generateQuestion()
               resetState()
             } else {
               onStageComplete(correctAnswers, totalAnswers + 1)
@@ -178,7 +189,10 @@ export default function NumbersStage({
   }
 
   return (
-    <div className="text-center " style={{ width: "50%" , top: "50%", left: "50%", transform: "translate(-50%, -50%)", position: "absolute"}}>
+    <div
+      className="text-center "
+      style={{ width: "50%", top: "50%", left: "50%", transform: "translate(-50%, -50%)", position: "absolute" }}
+    >
       <Card className="border-0 shadow-sm p-3 ">
         <ActivityTimer
           key={timerKey}
@@ -188,8 +202,8 @@ export default function NumbersStage({
         />
         <Card.Body className="p-4">
           <h4 className="text-end mb-2">
-            {isTrainingStage
-              ? `مرجمعة التدريب: السؤال ${currentActivity} من ${totalActivities}`
+          {isTrainingStage
+              ? `مجموعة التدريب: السؤال ${currentActivity} من ${totalActivities}`
               : `المرحلة الرئيسية: السؤال ${currentActivity} من ${totalActivities}`}
           </h4>
 
@@ -249,4 +263,3 @@ export default function NumbersStage({
     </div>
   )
 }
-

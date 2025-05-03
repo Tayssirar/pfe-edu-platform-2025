@@ -121,8 +121,8 @@ export default function StudentAchievements({ studentId }: StudentProgressProps)
 
   const competenceText =
     progressData.currentRangeId === 1
-      ? "المهارة الحالية: مهارة 1 جمع الأعداد الأقل من 5"
-      : "المهارة الحالية: مهارة 2 جمع الأعداد الأقل من 10"
+      ? "المهارة الحالية: مهارة 1 جمع الأعدادمن 1 إلى 5"
+      : "المهارة الحالية: مهارة 2 جمع الأعدادمن 1 إلى 10"
 
   const getRangeString = (rangeId: number) => {
     const rangeMin = 1
@@ -233,10 +233,10 @@ export default function StudentAchievements({ studentId }: StudentProgressProps)
       <div className="mt-5 pt-4">
         <Row>
           <Col md={6}>
-            {renderTable(filteredStageData1, "المهارة 1: مهارة جمع الأعداد الأقل من 5")}
+            {renderTable(filteredStageData1, "المهارة 1: مهارة جمع الأعدادمن 1 إلى 5")}
           </Col>
           <Col md={6}>
-            {renderTable(filteredStageData2, "المهارة 2: مهارة جمع الأعداد الأقل من 10")}
+            {renderTable(filteredStageData2, "المهارة 2: مهارة جمع الأعدادمن 1 إلى 10")}
           </Col>
         </Row>
       </div>

@@ -16,9 +16,9 @@ export default function ProgressTracker({
 
   let competenceText = ""
   if (currentRange.max <= 5) {
-    competenceText = "المهارة 1: مهارة جمع الأعداد الأقل من 5"
+    competenceText = "المهارة 1: مهارة جمع الأعدادمن 1 إلى 5"
   } else if (currentRange.max <= 10) {
-    competenceText = "المهارة 2: مهارة جمع الأعداد الأقل من 10"
+    competenceText = "المهارة 2: مهارة جمع الأعدادمن 1 إلى 10"
   }
 
   const filledStars = Math.min(correctAnswer, 5) // Cap at 5 stars
