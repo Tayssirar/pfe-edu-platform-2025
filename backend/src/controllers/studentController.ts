@@ -2,26 +2,28 @@ import { Request, Response } from "express";
 import Student from "../models/Student";
 
 // Fetch students by teacher ID
-export const getStudentsByTeacher = async (req: Request, res: Response) => {
+export const getStudentsByTeacher = async (req: Request, res: Response) : Promise<void> => {
   try {
     const { teacherId } = req.params;
 
     const students = await Student.find({ teacherId });
 
     if (!students || students.length === 0) {
-      return res.status(404).json({ message: "No students found for this teacher" });
+      res.status(404).json({ message: "No students found for this teacher" });
+      return;
     }
 
-    return res.json(students);
+    res.json(students);
   } catch (error) {
     console.error("Error fetching students:", error);
-    return res.status(500).json({ message: "Error fetching students", error });
+    res.status(500).json({ message: "Error fetching students", error });
+    return;
   }
 };
 
 
 // Add a new student and link to teacher
-export const linkStudentToTeacher = async (req: Request, res: Response) => {
+export const linkStudentToTeacher = async (req: Request, res: Response) : Promise<void> => {
   try {
     const { teacherId, uniqueIdentifier } = req.params;
 
@@ -33,77 +35,81 @@ export const linkStudentToTeacher = async (req: Request, res: Response) => {
     );
 
     if (!student) {
-      return res.status(404).json({ message: "Student not found" });
+      res.status(404).json({ message: "Student not found" });
+      return;
     }
 
-    return res.json({ message: "Student linked successfully", student });
+     res.json({ message: "Student linked successfully", student });
   } catch (error) {
-    return res.status(500).json({ message: "Error linking student", error });
+    res.status(500).json({ message: "Error linking student", error });
   }
 };
 
 
 // Remove student from teacher's list (unlink student from teacher)
-export const deleteStudent = async (req: Request, res: Response): Promise<Response> => {
+export const deleteStudent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { teacherId, uniqueIdentifier } = req.params;
-    
+
     // Update teacherId to null to unlink student from teacher
     const deletedStudent = await Student.findOneAndUpdate(
       { uniqueIdentifier, teacherId },
-      { teacherId: null }, // Set teacherId to null to unlink
+      { teacherId: null },
       { new: true }
     );
 
     if (!deletedStudent) {
-      return res.status(404).json({ message: "Student not found" });
+      res.status(404).json({ message: "Student not found" });
+      return; // Ensure the function returns void
     }
 
-    return res.json({ message: "Student deleted successfully" });
+    res.json({ message: "Student deleted successfully" });
   } catch (error) {
-    return res.status(500).json({ message: "Error deleting student", error });
+    res.status(500).json({ message: "Error deleting student", error });
   }
 };
 
 
 // Search for a student by unique identifier
-export const searchStudentByUniqueIdentifier = async (req: Request, res: Response) => {
+export const searchStudentByUniqueIdentifier = async (req: Request, res: Response): Promise<void>  => {
     const { uniqueIdentifier } = req.params;
   
     try {
       const student = await Student.findOne({ uniqueIdentifier });
   
       if (!student) {
-        return res.status(404).json({ message: "Student not found" });
+        res.status(404).json({ message: "Student not found" });
+        return;
       }
   
-      return res.json(student);
+      res.json(student);
     } catch (error) {
       console.error("Error searching student", error);
-      return res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Server error" });
     }
   };
 
 // Fetch child by parent ID
-export const getChildByParent = async (req: Request, res: Response) => {
+export const getChildByParent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { parentId } = req.params;
 
     const students = await Student.find({ parentId });
 
     if (!students || students.length === 0) {
-      return res.status(404).json({ message: "No child found for this parent" });
+      res.status(404).json({ message: "No child found for this parent" });
+      return; // Ensure the function returns void
     }
 
-    return res.json(students);
+    res.json(students);
   } catch (error) {
     console.error("Error fetching children:", error);
-    return res.status(500).json({ message: "Error fetching children", error });
+    res.status(500).json({ message: "Error fetching children", error });
   }
 };
 
 // Find students by school who are NOT linked to any teacher yet
-export const getUnlinkedStudentsBySchool = async (req: Request, res: Response) => {
+export const getUnlinkedStudentsBySchool = async (req: Request, res: Response) : Promise<void>=> {
   try {
     const { school } = req.params;
 
@@ -112,7 +118,8 @@ export const getUnlinkedStudentsBySchool = async (req: Request, res: Response) =
       teacherId: { $in: [null, undefined] } // Match unlinked students (teacherId is either null or does not exist)
     });
 
-    return res.json(students);
+    res.json(students);
+    return;
   } catch (error) {
     console.error("Error fetching unlinked students:", error);
     res.status(500).json({ message: "Server error" });
