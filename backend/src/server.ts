@@ -10,7 +10,7 @@ import feedbackRoutes from "./routes/feedbackRoutes";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: 'https://pfe-edu-platform-2025.vercel.app/' }));
+app.use(cors({ origin: 'https://pfe-edu-platform-2025.vercel.app', credentials: true  }));
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ limit: "10mb", extended: true }))
 mongoose
