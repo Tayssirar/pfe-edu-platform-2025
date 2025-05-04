@@ -8,9 +8,26 @@ import activityRoutes from "./routes/activityRoutes";
 import feedbackRoutes from "./routes/feedbackRoutes";
 
 dotenv.config();
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://pfe-edu-platform-2025.vercel.app'
+];
+
+
 
 const app = express();
-app.use(cors({ origin: 'https://pfe-edu-platform-2025.vercel.app'}));
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // if you're using cookies or auth headers
+}));
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ limit: "10mb", extended: true }))
 mongoose

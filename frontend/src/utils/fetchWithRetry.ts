@@ -7,7 +7,7 @@ export async function fetchWithRetry<T = any>(
   data?: any,
   config?: AxiosRequestConfig,
   retries = 3,
-  delay = 2000
+  delay = 1000
 ): Promise<AxiosResponse<T>> {
   try {
     return await axios({ method, url, data, ...config });
