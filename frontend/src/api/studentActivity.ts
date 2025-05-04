@@ -1,40 +1,40 @@
+import { fetchWithRetry } from "../utils/fetchWithRetry";
+
 // This file contains API service functions to interact with the backend
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 // Get student progress from the server
 export async function getStudentProgress(studentId: string) {
   try {
-    const response = await fetch(`${API_URL}/activity/${studentId}/progress`)
+    const response = await fetchWithRetry('get', `${API_URL}/activity/${studentId}/progress`);
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch student progress")
+    if (!response.status || response.status >= 400) {
+      throw new Error("Failed to fetch student progress");
     }
 
-    return await response.json()
+    return response.data; // Axios responses use `data` for the response body
   } catch (error) {
-    console.error("Error fetching student progress:", error)
-
+    console.error("Error fetching student progress:", error);
+    return null;
   }
 }
 
 // Update student progress on the server
 export async function updateStudentProgress(studentId: string, progressData: any) {
   try {
-    const response = await fetch(`${API_URL}/activity/${studentId}/progress`, {
-      method: "PUT",
+    const response = await fetchWithRetry('put', `${API_URL}/activity/${studentId}/progress`, progressData, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(progressData),
-    })
+    });
 
-    if (!response.ok) {
-      throw new Error("Failed to update student progress")
+    if (!response.status || response.status >= 400) {
+      throw new Error("Failed to update student progress");
     }
 
-    return await response.json()
+    return response.data;
   } catch (error) {
-    console.error("Error updating student progress:", error)
+    console.error("Error updating student progress:", error);
 
     // Store progress in localStorage as a fallback if server is unavailable
     localStorage.setItem(
@@ -44,28 +44,26 @@ export async function updateStudentProgress(studentId: string, progressData: any
         lastSyncAttempt: new Date().toISOString(),
         syncFailed: true,
       }),
-    )
+    );
 
-    return null
+    return null;
   }
 }
 
 // Save student progress
 export async function saveStudentProgress(studentId: string, progressData: any) {
   try {
-    const response = await fetch(`${API_URL}/activity/${studentId}/progress`, {
-      method: "PUT",
+    const response = await fetchWithRetry('put', `${API_URL}/activity/${studentId}/progress`, progressData, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(progressData),
     });
 
-    if (!response.ok) {
+    if (!response.status || response.status >= 400) {
       throw new Error("Failed to save student progress");
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error saving student progress:", error);
     return null;
