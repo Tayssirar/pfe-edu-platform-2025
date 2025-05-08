@@ -2,8 +2,8 @@ import type React from "react"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import VideoPlayer from "../components/video-player"
-import kidsImage from "../assets/kids.png"
-
+import kidsImage from "../assets/landingPageImage.jpg"
+import logo from "../assets/logo.png"
 const LandingPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false)
   const [role, setRole] = useState("")
@@ -39,11 +39,13 @@ const LandingPage: React.FC = () => {
       <div className="space-box student-space" onClick={() => handleRoleClick("تلميذ")}>
         <h2>فضاء التلميذ</h2>
       </div>
-{/* 
+      <div className="logo-illustration">
+        <img src={logo } alt="logo" />
+      </div>
+      {/* 
       <div className="video-section">
         <VideoPlayer src="https://youtu.be/IYLTc3tGdzc?si=HyyqnqUKshzh9QXr" width={300} height={200} />
-      </div>
-*/}
+      </div>*/}
       <div className="children-illustration">
         <img src={kidsImage || "/placeholder.svg"} alt="Children learning" />
       </div>

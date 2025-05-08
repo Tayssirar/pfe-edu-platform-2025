@@ -156,7 +156,21 @@
 }
 
 
+/* logo illustration */
+.logo-illustration {
+  position: absolute;
+  top: 10%;
+  right: 13%;
+  z-index: 3;
+  width: 100px;
+  height: 100px;
+}
 
+.logo-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 /* Toast styling */
 .toast {
   z-index: 1000;
