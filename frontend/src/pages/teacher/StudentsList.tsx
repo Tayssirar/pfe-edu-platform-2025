@@ -108,7 +108,7 @@ const StudentsList: React.FC = () => {
             <th>الصورة</th>
             <th>المعرف الفريد</th>
             <th>اسم الطفل</th>
-            <th>اسم الوالد</th>
+            <th>اسم الولي</th>
             <th>الإجراءات</th>
           </tr>
         </thead>
@@ -173,7 +173,7 @@ const StudentsList: React.FC = () => {
                     <tr>
                       <th></th>
                       <th>المعرف الفريد</th>
-                      <th>اسم الوالد</th>
+                      <th>اسم الولي</th>
                       <th>اسم الطفل</th>
                       <th>الصورة</th>
                     </tr>

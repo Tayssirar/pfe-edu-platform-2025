@@ -28,7 +28,7 @@ const PageLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       { label: "الصفحة الرئيسية", path: `/dashboard/${user?.id}/${userRole}`, state: { user }  },
       { label: "الملف الشخصي", path: `/teacher/${user?.id}/profile`, state: { user }  },
       { label: "الدروس", path: `/teacher/${user?.id}/lessons`, state: { user } },
-      { label: "الطلاب", path: `/teacher/${user?.id}/students`, state: { user }  }, 
+      { label: "التلاميذ", path: `/teacher/${user?.id}/students`, state: { user }  }, 
     ],
     parent: [
 
