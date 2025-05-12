@@ -42,10 +42,9 @@ const LandingPage: React.FC = () => {
       <div className="logo-illustration">
         <img src={logo } alt="logo" />
       </div>
-      {/* 
       <div className="video-section">
-        <VideoPlayer src="https://youtu.be/IYLTc3tGdzc?si=HyyqnqUKshzh9QXr" width={300} height={200} />
-      </div>*/}
+      <VideoPlayer src="https://youtu.be/vpabI9m7cFk?si=NHU8ick8mGWSmm3V" width={300} height={200} />
+      </div>
       <div className="children-illustration">
         <img src={kidsImage || "/placeholder.svg"} alt="Children learning" />
       </div>
