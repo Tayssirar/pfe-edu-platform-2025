@@ -25,7 +25,8 @@ const StudentsList: React.FC = () => {
   const navigate = useNavigate();
   
   const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null");
-  const teacherId = user.id;
+  const teacherId = user._id;
+  console.log("🚀 ~ teacherId:", teacherId)
   const teacherSchool = user.school;
 
   const fetchStudents = async (teacherId: string) => {

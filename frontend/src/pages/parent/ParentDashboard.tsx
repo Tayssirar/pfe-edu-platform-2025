@@ -21,7 +21,7 @@ type Child = {
 function ParentDashboard() {
   const [children, setChildren] = useState<Child[]>([]);
   const user = JSON.parse(localStorage.getItem("user") || "null");
-  const parentId = user?.id; // Use optional chaining to avoid crashes
+  const parentId = user?._id; // Use optional chaining to avoid crashes
 
   const fetchChildren = async (parentId: string) => {
     try {

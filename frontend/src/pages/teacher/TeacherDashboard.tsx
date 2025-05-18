@@ -20,7 +20,7 @@ interface Student {
 const TeacherDashboard: React.FC = () => {
   const location = useLocation();
   const user = location.state?.user || JSON.parse(localStorage.getItem("user") || "null");
-  const teacherId = user.id;
+  const teacherId = user._id;
 
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
