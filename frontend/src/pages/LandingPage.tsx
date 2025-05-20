@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import VideoPlayer from "../components/video-player"
 import kidsImage from "../assets/landingPageImage.jpg"
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.jpg"
 const LandingPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false)
   const [role, setRole] = useState("")
@@ -45,10 +45,11 @@ const LandingPage: React.FC = () => {
       <div className="video-section">
       <VideoPlayer src="https://youtu.be/vpabI9m7cFk?si=NHU8ick8mGWSmm3V" width={300} height={200} />
       </div>
+      {/* 
       <div className="children-illustration">
         <img src={kidsImage || "/placeholder.svg"} alt="Children learning" />
       </div>
-
+*/}
       {showToast && (
         <div
           className="toast show position-fixed top-0 end-0 m-3"
