@@ -43,7 +43,7 @@ const LandingPage: React.FC = () => {
         <img src={logo } alt="logo" />
       </div>
       <div className="video-section">
-      <VideoPlayer src="https://youtu.be/vpabI9m7cFk?si=NHU8ick8mGWSmm3V" width={300} height={200} />
+      <VideoPlayer src="https://www.youtube.com/watch?v=zduqjkHLQbQ" width={300} height={200} />
       </div>
       {/* 
       <div className="children-illustration">
